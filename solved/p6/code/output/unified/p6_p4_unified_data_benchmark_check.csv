@@ -1,0 +1,9 @@
+column,max_abs_diff,passed
+theta_no_schooling,9.71445146547012e-17,True
+theta_primary,9.71445146547012e-17,True
+theta_secondary,8.326672684688674e-17,True
+theta_tertiary,9.71445146547012e-17,True
+theta_sum,1.1102230246251565e-16,True
+y_observed_from_base,2.9103830456733704e-11,True
+K_over_Y_from_base,8.881784197001252e-16,True
+h_from_base,4.440892098500626e-16,True
