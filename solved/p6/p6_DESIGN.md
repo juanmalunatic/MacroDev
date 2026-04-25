@@ -875,14 +875,26 @@ s_{education,sin} = s_h.
 Create:
 
 ```text
-solved/p6/code/student/output/p6_p4_student_country_level.csv
-solved/p6/code/student/output/p6_p4_student_item_a_with_A_relative.pdf
-solved/p6/code/student/output/p6_p4_student_item_a_without_A_relative.pdf
-solved/p6/code/student/output/p6_p4_student_item_b_variance_decomposition.csv
-solved/p6/code/student/output/p6_p4_student_item_b_variance_decomposition.md
-solved/p6/code/student/output/p6_p4_student_item_c_education_contribution.csv
-solved/p6/code/student/output/p6_p4_student_item_c_education_contribution.md
-solved/p6/code/student/output/p6_p4_student_summary.txt
+solved/p6/code/student/output/country_level.csv
+solved/p6/code/student/output/fig_with_A.pdf
+solved/p6/code/student/output/fig_without_A.pdf
+solved/p6/code/student/output/var_decomp.csv
+solved/p6/code/student/output/var_decomp.md
+solved/p6/code/student/output/var_decomp.tex
+solved/p6/code/student/output/education_contribution.csv
+solved/p6/code/student/output/education_contribution.md
+solved/p6/code/student/output/summary.txt
+```
+
+The student-facing deliverable should not use longer internal filenames such as:
+
+```text
+p6_p4_student_country_level.csv
+p6_p4_student_item_a_with_A_relative.pdf
+p6_p4_student_item_a_without_A_relative.pdf
+p6_p4_student_item_b_variance_decomposition.*
+p6_p4_student_item_c_education_contribution.*
+p6_p4_student_summary.txt
 ```
 
 PDF figures should be in Spanish and use the same basic style as the unified report figures:
@@ -894,6 +906,21 @@ PDF figures should be in Spanish and use the same basic style as the unified rep
 - country-code labels for this small selected set only: `USA`, `ARG`, `AUS`, `CHN`, `IND`, `DEU`, `BRA`, `MEX`.
 
 Do not create absolute debug figures unless they are easy and clearly separated; they are not required for the student-facing script.
+
+## Table formatting standard
+
+This formatting standard applies to both unified outputs and student outputs:
+
+- CSV outputs keep full numerical precision.
+- Markdown presentation tables round numerical values to 3 decimals.
+- LaTeX presentation tables round numerical values to 3 decimals.
+- This applies at least to item (b) variance decomposition tables and item (c) education contribution tables.
+- LaTeX tables should remain `booktabs`-style table environments only.
+
+Keep the distinction clear:
+
+- unified outputs may keep their existing long filenames because they are internal/benchmark outputs;
+- student outputs are final deliverable outputs and should use short names.
 
 ## Development-only benchmark checks
 
