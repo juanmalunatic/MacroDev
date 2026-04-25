@@ -570,3 +570,335 @@ After inspecting, creating, patching, or running the script, Codex should report
 7. unresolved matching/data issues, if any.
 
 Do not present unverified numerical results as final.
+
+# DESIGN.md Addendum — Phase 2, PS6 Part III, Problem 4(b)
+
+## How to apply this addendum
+
+Append this section to the **end** of `solved/p6/DESIGN.md`.
+
+Do **not** replace the whole file.
+
+Do **not** modify `solved/p6/AGENTS.md`.
+
+This is an incremental phase. Preserve the completed item (a) pipeline unless a targeted change is strictly needed to reuse its country-level variables.
+
+---
+
+## Phase 2 — Item (b): Variance decomposition
+
+**Status:** not implemented.
+
+### Task scope
+
+Implement **only PS6, Part III, Problem 4, item (b)**.
+
+The item (a) script is already considered complete/frozen. The new task is to extend the empirical pipeline so it computes the variance decomposition requested in item (b):
+
+- aggregate firm productivity,
+- capital-output factor,
+- worker human capital,
+- residual.
+
+Do **not** implement item (c) yet.
+
+Do **not** rewrite the item (a) pipeline from scratch.
+
+Do **not** delete or rename existing item (a) outputs.
+
+### Existing item (a) outputs to preserve
+
+The following item (a) outputs should continue to be produced exactly as before:
+
+```text
+solved/p6/code/output/p6_p4_item_a_country_level.csv
+solved/p6/code/output/p6_p4_item_a_with_A.png
+solved/p6/code/output/p6_p4_item_a_without_A.png
+solved/p6/code/output/p6_p4_item_a_summary.txt
+```
+
+If the current script already creates these files and passes checks, reuse it.
+
+### Recommended implementation strategy
+
+Update the existing script:
+
+```text
+solved/p6/code/p6_part3_p4_item_a.py
+```
+
+Do this incrementally:
+
+1. Inspect the existing script and country-level variables.
+2. If item (a) is already implemented up to spec, preserve the existing data-loading, merge, plotting, and item (a) calculations.
+3. Add item (b) functions for the variance decomposition.
+4. Re-run the full script so item (a) outputs are still generated and item (b) outputs are added.
+
+Do not create a second parallel script unless the current script is unusable.
+
+### Variables for item (b)
+
+Use the variables already constructed for item (a), all in logs relative to the United States:
+
+```python
+ln_y_rel_us
+ln_tilde_A_rel_us
+ln_K_over_Y_rel_us
+ln_h_rel_us
+```
+
+These correspond to:
+
+\[
+\ell^y_c \equiv \ln\frac{y_c}{y_U},
+\]
+
+\[
+\ell^A_c \equiv \ln\frac{\tilde A_c}{\tilde A_U},
+\]
+
+\[
+\ell^K_c \equiv
+\frac{\gamma}{1-\gamma}
+\ln\left(
+\frac{K_c/Y_c}{K_U/Y_U}
+\right),
+\]
+
+\[
+\ell^h_c \equiv \ln\frac{h_c}{h_U}.
+\]
+
+Important naming detail:
+
+- `ln_K_over_Y_rel_us` is only the raw relative log capital-output ratio:
+  \[
+  \ln\left((K_c/Y_c)/(K_U/Y_U)\right).
+  \]
+- For the variance decomposition component, create a separate variable that includes the model exponent:
+  \[
+  \ell^K_c =
+  \frac{\gamma}{1-\gamma}
+  \ln\left((K_c/Y_c)/(K_U/Y_U)\right).
+  \]
+
+Preferred code name:
+
+```python
+ell_K
+```
+
+or:
+
+```python
+ln_capital_factor_rel_us
+```
+
+Do not accidentally decompose using the raw capital-output log without multiplying by `capital_exponent`.
+
+### Residual definition
+
+Define the residual as:
+
+\[
+\varepsilon_c
+=
+\ell^y_c
+-
+\ell^A_c
+-
+\ell^K_c
+-
+\ell^h_c.
+\]
+
+In code, create:
+
+```python
+residual = (
+    ln_y_rel_us
+    - ln_tilde_A_rel_us
+    - ln_capital_factor_rel_us
+    - ln_h_rel_us
+)
+```
+
+This implies:
+
+\[
+\ell^y_c
+=
+\ell^A_c
++
+\ell^K_c
++
+\ell^h_c
++
+\varepsilon_c.
+\]
+
+### Variance decomposition formula
+
+For each component \(x_c\), compute:
+
+\[
+s_x =
+\frac{\operatorname{Cov}(x_c, \ell^y_c)}
+{\operatorname{Var}(\ell^y_c)}.
+\]
+
+Use sample covariance and sample variance consistently. In pandas, the default `.cov()` and `.var()` both use `ddof=1`, so that is acceptable.
+
+Compute:
+
+\[
+s_A =
+\frac{\operatorname{Cov}(\ell^A_c,\ell^y_c)}
+{\operatorname{Var}(\ell^y_c)},
+\]
+
+\[
+s_K =
+\frac{\operatorname{Cov}(\ell^K_c,\ell^y_c)}
+{\operatorname{Var}(\ell^y_c)},
+\]
+
+\[
+s_h =
+\frac{\operatorname{Cov}(\ell^h_c,\ell^y_c)}
+{\operatorname{Var}(\ell^y_c)},
+\]
+
+\[
+s_\varepsilon =
+\frac{\operatorname{Cov}(\varepsilon_c,\ell^y_c)}
+{\operatorname{Var}(\ell^y_c)}.
+\]
+
+The four shares should sum to one up to numerical tolerance:
+
+\[
+s_A + s_K + s_h + s_\varepsilon \approx 1.
+\]
+
+### Required item (b) outputs
+
+Add these generated files:
+
+```text
+solved/p6/code/output/p6_p4_item_b_variance_decomposition.csv
+solved/p6/code/output/p6_p4_item_b_variance_decomposition.md
+```
+
+Optional but useful:
+
+```text
+solved/p6/code/output/p6_p4_item_b_summary.txt
+```
+
+The CSV/Markdown table should include at least:
+
+```text
+component
+share
+covariance_with_ln_y
+variance_ln_y
+```
+
+Use component labels similar to:
+
+```text
+firm_productivity
+capital_factor
+worker_human_capital
+residual
+total
+```
+
+The `total` row should report the sum of shares.
+
+### Country-level CSV update
+
+Also add the item (b) decomposition variables to the existing country-level CSV:
+
+```text
+ln_capital_factor_rel_us
+residual
+```
+
+Keep the existing item (a) columns.
+
+### Required checks
+
+Add explicit checks that:
+
+1. The final sample used for item (b) has no missing values in:
+   - `ln_y_rel_us`,
+   - `ln_tilde_A_rel_us`,
+   - `ln_capital_factor_rel_us`,
+   - `ln_h_rel_us`,
+   - `residual`.
+2. `ln_capital_factor_rel_us` equals:
+   ```python
+   capital_exponent * ln_K_over_Y_rel_us
+   ```
+   up to numerical tolerance.
+3. `residual` satisfies:
+   ```python
+   ln_y_rel_us == (
+       ln_tilde_A_rel_us
+       + ln_capital_factor_rel_us
+       + ln_h_rel_us
+       + residual
+   )
+   ```
+   up to numerical tolerance.
+4. The variance of `ln_y_rel_us` is positive.
+5. The variance-decomposition shares sum to one up to numerical tolerance, e.g. absolute error below `1e-10` or a similarly tight tolerance.
+6. Existing item (a) checks still pass.
+7. Existing item (a) figure files still exist after the run.
+8. New item (b) table files exist after the run.
+
+### Console summary
+
+At the end of the script, extend the run summary to include:
+
+- item (b) was computed;
+- variance decomposition output paths;
+- sum of shares;
+- maximum absolute reconstruction error for:
+  \[
+  \ell^y_c
+  =
+  \ell^A_c
+  +
+  \ell^K_c
+  +
+  \ell^h_c
+  +
+  \varepsilon_c.
+  \]
+
+### Do not implement yet
+
+Do not implement item (c).
+
+Do not add interpretation of total education contribution yet.
+
+Do not change the user-written LaTeX unless explicitly requested.
+
+Do not refactor the whole project or create general infrastructure for the full problem set.
+
+### Expected Codex final response
+
+After running the script, report only:
+
+1. files created or modified;
+2. command used to reproduce;
+3. number of countries in the item (b) sample;
+4. variance-decomposition table path;
+5. share sum check;
+6. item (a) outputs still present;
+7. any unresolved data/matching issues.
+
+Do not present unverified numerical results as final.

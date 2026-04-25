@@ -127,3 +127,62 @@ Por último, la versión sin productividad agregada de firmas se calcula omitien
 
 El ejercicio consiste en comparar el valor observado en PWT, $\ln(y_c/y_U)$, contra los valores explicados por el modelo con y sin el término de productividad agregada de firmas, dados por las ecuaciones \ref{eq_ycus_conA} y \ref{eq_ycus_sinA} respectivamente.
 
+Poner las dos imagenes
+
+Concluir
+
+\subsection{Inciso B}
+
+El inciso (b) pide descomponer la varianza del ingreso observado en los datos entre los componentes del modelo: productividad agregada de firmas, capital físico, capital humano de trabajadores y un residuo. Se usan las variables ya construidas en el inciso (a), todas en logs relativos a Estados Unidos:
+\begin{align}
+	\ell^y_c &\equiv \ln\frac{y_c}{y_U}, &
+	\ell^A_c &\equiv \ln\frac{\tilde A_c}{\tilde A_U}, &
+	\ell^K_c &\equiv \frac{\gamma}{1-\gamma}
+	\ln\left(
+	\frac{K_c/Y_c}{K_U/Y_U}
+	\right), &
+	\ell^h_c &\equiv \ln\frac{h_c}{h_U}.
+\end{align}
+El residuo se define como la parte del ingreso relativo que no es explicada por los tres componentes del modelo (Ecuación \ref{eq_resi}). Esto es equivalente a definir a $\ell^y_c$ como la suma de los otros cuatro componentes (Ecuación \ref{eq_yresi}).
+\begin{align}
+	\varepsilon_c
+	&=
+	\ell^y_c
+	-
+	\ell^A_c
+	-
+	\ell^K_c
+	-
+	\ell^h_c \label{eq_resi} \\
+	\ell^y_c
+	&=
+	\ell^A_c
+	+
+	\ell^K_c
+	+
+	\ell^h_c
+	+
+	\varepsilon_c \label{eq_yresi}
+\end{align}
+De acuerdo a las slides de clase, se calcula la participación del componente $x$ en la varianza del ingreso observado como lo muestra la Ecuación \ref{eq_all_shares}\footnote{
+	Estas participaciones suman uno por construcción, salvo diferencias numéricas de redondeo:
+	\begin{align}
+		s_A + s_K + s_h + s_\varepsilon = 1.
+	\end{align}
+}.
+\begin{align}
+	s_A &=
+	\frac{\operatorname{Cov}(\ell^A_c,\ell^y_c)}
+	{\operatorname{Var}(\ell^y_c)}, &
+	s_K &=
+	\frac{\operatorname{Cov}(\ell^K_c,\ell^y_c)}
+	{\operatorname{Var}(\ell^y_c)}, &
+	s_h &=
+	\frac{\operatorname{Cov}(\ell^h_c,\ell^y_c)}
+	{\operatorname{Var}(\ell^y_c)}, &
+	s_\varepsilon &=
+	\frac{\operatorname{Cov}(\varepsilon_c,\ell^y_c)}
+	{\operatorname{Var}(\ell^y_c)} \label{eq_all_shares}
+\end{align}
+
+
