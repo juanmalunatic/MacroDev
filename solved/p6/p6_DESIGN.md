@@ -902,3 +902,199 @@ After running the script, report only:
 7. any unresolved data/matching issues.
 
 Do not present unverified numerical results as final.
+
+# DESIGN.md Addendum — Phase 3, PS6 Part III, Problem 4(c)
+
+## How to apply this addendum
+
+Append this section to the **end** of `solved/p6/DESIGN.md`.
+
+Do **not** replace the whole file.
+
+Do **not** modify `solved/p6/AGENTS.md`.
+
+This is an incremental phase. Preserve the completed item (a) and item (b) pipeline unless a targeted change is strictly needed to reuse existing outputs or variables.
+
+---
+
+## Phase 3 — Item (c): Total education contribution
+
+**Status:** not implemented.
+
+### Task scope
+
+Implement **only PS6, Part III, Problem 4, item (c)**.
+
+Item (a) and item (b) are considered complete/frozen. The new task is to extend the existing Python script so that it reproducibly computes the total contribution of education differences across countries.
+
+Do **not** implement new plots.
+
+Do **not** modify human-written LaTeX.
+
+Do **not** rewrite the item (a) or item (b) pipeline from scratch.
+
+### Required implementation target
+
+Update the existing script:
+
+```text
+solved/p6/code/p6_part3_p4_item_a.py
+```
+
+It is expected that running the script regenerates all outputs for items (a), (b), and (c).
+
+Important distinction:
+
+- It is OK for the Python script to recreate output files on every run.
+- It is not OK for Codex to rewrite the whole Python script from scratch.
+- Add item (c) as an incremental extension inside the existing script, preferably using small dedicated functions.
+
+### Economic definition
+
+Use the variance-decomposition results from item (b).
+
+Education affects income through two channels:
+
+1. Entrepreneur / firm-productivity channel:
+   ```text
+   firm_productivity
+   ```
+2. Worker human-capital channel:
+   ```text
+   worker_human_capital
+   ```
+
+Define:
+
+```text
+firm_productivity_education_channel = share(firm_productivity)
+worker_human_capital_channel = share(worker_human_capital)
+total_education_contribution = firm_productivity_education_channel + worker_human_capital_channel
+human_capital_only = worker_human_capital_channel
+added_contribution_from_firm_productivity = firm_productivity_education_channel
+ratio_total_to_human_capital_only = total_education_contribution / human_capital_only
+```
+
+Using the notation from the writeup:
+
+\[
+s_{education} = s_A + s_h.
+\]
+
+### Required code structure
+
+Reuse the item (b) variance-decomposition dataframe computed inside the script.
+
+Add a function similar to:
+
+```python
+def compute_education_contribution(variance_decomposition: pd.DataFrame) -> pd.DataFrame:
+    ...
+```
+
+Add a function similar to:
+
+```python
+def write_item_c_outputs(education_contribution: pd.DataFrame, output_dir: Path) -> dict[str, Path]:
+    ...
+```
+
+Call these functions from the existing `run()` flow after item (b) is computed.
+
+Avoid duplicating calculations already done for item (b).
+
+### Required new outputs
+
+The Python script must generate these files on every run:
+
+```text
+solved/p6/code/output/p6_p4_item_c_education_contribution.csv
+solved/p6/code/output/p6_p4_item_c_education_contribution.md
+solved/p6/code/output/p6_p4_item_c_summary.txt
+```
+
+The CSV/Markdown table should include at least:
+
+```text
+concept
+value
+```
+
+Required concept labels:
+
+```text
+firm_productivity_education_channel
+worker_human_capital_channel
+total_education_contribution
+human_capital_only
+added_contribution_from_firm_productivity
+ratio_total_to_human_capital_only
+```
+
+### Required checks
+
+Add explicit checks that:
+
+1. The item (b) variance-decomposition table contains:
+   - `firm_productivity`
+   - `worker_human_capital`
+2. `total_education_contribution` equals:
+   ```python
+   firm_productivity_education_channel + worker_human_capital_channel
+   ```
+   up to numerical tolerance.
+3. `human_capital_only` equals:
+   ```python
+   worker_human_capital_channel
+   ```
+   up to numerical tolerance.
+4. `added_contribution_from_firm_productivity` equals:
+   ```python
+   firm_productivity_education_channel
+   ```
+   up to numerical tolerance.
+5. `ratio_total_to_human_capital_only` equals:
+   ```python
+   total_education_contribution / human_capital_only
+   ```
+   up to numerical tolerance.
+6. Existing item (a) outputs still exist after running.
+7. Existing item (b) outputs still exist after running.
+8. New item (c) outputs exist after running.
+
+### Console and summary output
+
+Extend the script summary to include:
+
+- item (c) was computed;
+- total education contribution;
+- human-capital-only contribution;
+- added firm-productivity / entrepreneur contribution;
+- ratio total education contribution to human-capital-only contribution;
+- output paths for item (c).
+
+### Do not implement
+
+Do not implement new plots for item (c).
+
+Do not modify item (a) figures.
+
+Do not modify human-written LaTeX.
+
+Do not change data loading, country matching, or item (a)/(b) formulas unless a targeted fix is strictly required.
+
+Do not create a new parallel script unless the existing script is unusable.
+
+### Expected Codex final response
+
+After running the script, Codex should report only:
+
+1. files created or modified;
+2. command used to reproduce;
+3. item (c) output paths;
+4. item (c) numerical values;
+5. checks passed;
+6. item (a) and item (b) outputs still present;
+7. any unresolved data/matching issues.
+
+Do not present unverified numerical results as final.
