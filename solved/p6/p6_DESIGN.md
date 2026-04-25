@@ -1,130 +1,112 @@
-# DESIGN.md — PS6 Part III, Problem 4
+# p6_DESIGN.md — PS6 Part III, Problem 4
 
 ## Purpose
 
-This file is the incremental implementation handoff for `solved/p6/`. It should guide Codex to implement and validate the empirical work for PS6, Part III, Problem 4 without rewriting the whole folder every time.
+This file is the incremental implementation handoff for `solved/p6/`.
 
-`AGENTS.md` controls folder discipline and process. This file controls the selected math/economic task and the current implementation plan.
+It guides Codex to implement, validate, and refactor the empirical work for PS6, Part III, Problem 4 without rewriting the whole folder or touching manual LaTeX.
+
+`p6_AGENTS.md` controls folder discipline and process. This file controls the selected math/economic task and the current implementation plan.
+
+## Current repository convention
+
+Use the real file names in this repository:
+
+```text
+solved/p6/p6_AGENTS.md
+solved/p6/p6_DESIGN.md
+solved/p6/code/
+solved/p6/latex/
+```
+
+Treat these as read-only unless explicitly instructed:
+
+```text
+data/
+docs/
+solved/p6/latex/
+```
+
+Do not modify human-written LaTeX files in `solved/p6/latex/`.
 
 ## Incremental workflow rule
 
 Before creating or rewriting anything, inspect the current state of the repository.
 
-1. Check whether the target script already exists:
+1. Read `solved/p6/p6_AGENTS.md`.
+2. Read this file.
+3. Inspect the relevant existing scripts and outputs.
+4. If an existing component already satisfies the specification, do not rewrite it.
+5. If an existing component mostly satisfies the specification but has gaps, patch only the missing or incorrect pieces.
+6. If a new component is requested, add it without deleting or reconstructing completed work.
+7. Do not delete or reconstruct unrelated PS6 work.
+8. The Python scripts may regenerate output files on every run. That is expected.
+9. The restriction is against Codex rewriting completed source code from scratch, not against reproducibly overwriting generated outputs.
 
-   ```text
-   solved/p6/code/p6_part3_p4_item_a.py
-   ```
+## Frozen benchmark implementation
 
-2. If it exists, read it and compare it against the specification below.
-
-3. If it already satisfies the specification, do not rewrite it. Run it, validate outputs, and report results.
-
-4. If it mostly satisfies the specification but has gaps, patch only the missing or incorrect pieces.
-
-5. If it does not exist, create it from scratch.
-
-6. Do not delete or reconstruct unrelated PS6 work.
-
-7. Do not implement item (b) or item (c) yet. This file is intentionally structured so later sections can be added for those items without replacing the item (a) instructions.
-
-## Current task scope
-
-Implement only:
+The current script is considered a frozen benchmark:
 
 ```text
-PS6, Part III, Problem 4, item (a)
+solved/p6/code/p6_part3_p4_item_a.py
 ```
 
-The goal is to create, test, or validate a complete Python script that:
+It already implements items (a), (b), and (c). Do not edit this script in Phase 4 unless explicitly instructed later.
 
-1. loads PWT and Barro--Lee data;
-2. constructs education shares \(\theta_{i,c}\);
-3. constructs entrepreneurial productivity \(\tilde A_c\);
-4. computes observed log output per worker relative to the United States;
-5. computes model-implied log output per worker relative to the United States, with and without aggregate firm productivity;
-6. generates the two scatter plots requested by the problem statement.
-
-Do not implement the variance decomposition for item (b) yet.
-
-## Repository paths
-
-Use these input files:
+Use its outputs as the benchmark for validating the refactor:
 
 ```text
-data/Barro_Lee.xls
-data/pwt1001.xlsx
+solved/p6/code/output/p6_p4_item_a_country_level.csv
+solved/p6/code/output/p6_p4_item_a_summary.txt
+solved/p6/code/output/p6_p4_item_a_with_A.png
+solved/p6/code/output/p6_p4_item_a_without_A.png
+solved/p6/code/output/p6_p4_item_b_variance_decomposition.csv
+solved/p6/code/output/p6_p4_item_b_variance_decomposition.md
+solved/p6/code/output/p6_p4_item_b_summary.txt
+solved/p6/code/output/p6_p4_item_c_education_contribution.csv
+solved/p6/code/output/p6_p4_item_c_education_contribution.md
+solved/p6/code/output/p6_p4_item_c_summary.txt
 ```
 
-Write generated files under:
+The refactor is successful only if the new pipeline reproduces the relevant numerical benchmark outputs up to numerical tolerance.
 
-```text
-solved/p6/code/
-```
+## Economic constants and notation
 
-Use this output folder:
-
-```text
-solved/p6/code/output/
-```
-
-Treat `data/` and `docs/` as read-only.
-
-## Python execution convention
-
-From the repository root, use the Windows Python launcher:
-
-```bash
-py solved/p6/code/p6_part3_p4_item_a.py
-```
-
-Do not assume `python` is available on PATH.
-
-The script should infer the repository root from `__file__` using `pathlib`; it must not depend on absolute paths.
-
-## Data year
-
-Barro--Lee ends in 2010 in this repository. Use:
+Use natural logs.
 
 ```python
 YEAR = 2010
-```
+US_CODE = "USA"
+GAMMA = 1 / 3
+CAPITAL_EXPONENT = GAMMA / (1 - GAMMA)  # equals 1/2
+BAR_R = 0.08
 
-Use the same year in PWT.
+EDUCATION_GROUPS = ["no_schooling", "primary", "secondary", "tertiary"]
 
-If either dataset is missing or does not contain the required year, stop with a clear error message.
+SCHOOLING_YEARS = {
+    "no_schooling": 0,
+    "primary": 6,
+    "secondary": 12,
+    "tertiary": 17,
+}
 
-## Economic notation and constants
-
-Use names that mirror the writeup notation as much as possible.
-
-```python
-gamma = 1 / 3
-capital_exponent = gamma / (1 - gamma)  # equals 1/2
-
-z_by_group = {
+Z_LOG_BY_GROUP = {
     "no_schooling": 0.28,
     "primary": 0.60,
     "secondary": 0.93,
     "tertiary": 1.20,
 }
 
-Z_by_group = {group: np.exp(z) for group, z in z_by_group.items()}
-
-EDUCATION_GROUPS = ["no_schooling", "primary", "secondary", "tertiary"]
+Z_BY_GROUP = {group: np.exp(z) for group, z in Z_LOG_BY_GROUP.items()}
 ```
 
-Use natural logs.
-
-## Economic objects
-
-For each country \(c\), construct:
+The firm-productivity object is:
 
 \[
-\tilde A_c = \left(\sum_i \theta_{i,c}Z_i^2\right)^{1/2}.
+\tilde A_c = \left(\sum_i \theta_{i,c} Z_i^2\right)^{1/2}.
 \]
 
-Do not call this object plain `A_c` in code unless clearly distinguishing it from the unknown-scaled object:
+Do not call this object plain `A_c` in code unless clearly distinguishing it from:
 
 \[
 A_c = C\tilde A_c.
@@ -146,6 +128,27 @@ The unknown constant cancels under US normalization:
 \ln\frac{\tilde A_c}{\tilde A_U}.
 \]
 
+## Raw data inputs
+
+Use exactly:
+
+```text
+data/Barro_Lee.xls
+data/pwt1001.xlsx
+```
+
+Barro-Lee ends in 2010 in this repository. Use:
+
+```python
+YEAR = 2010
+```
+
+Use the same year in PWT.
+
+If a required input file is missing, stop with a clear error message.
+
+If reading `.xls` requires `xlrd` and it is not installed, stop with a clear message explaining that `.xls` reading requires `xlrd`.
+
 ## PWT mapping
 
 Following the previous development-accounting convention, use:
@@ -162,7 +165,7 @@ y_c = \frac{Y_c}{N_c} = \frac{\texttt{rgdpo}_c}{\texttt{emp}_c},
 h_c = \texttt{hc}_c.
 \]
 
-Important: `hc` from PWT is a human-capital index in levels. It corresponds to \(h_c\), not to \(\bar r\bar s_c\). Since the accounting equation is in logs, the human-capital term is:
+Important: `hc` from PWT is a human-capital index in levels. It corresponds to \(h_c\), not to \(\bar r\bar s_c\). Since the accounting equation is in logs:
 
 \[
 \ln h_c = \ln(\texttt{hc}_c).
@@ -180,34 +183,17 @@ cn
 hc
 ```
 
-For 2010, construct:
-
-```python
-y_observed = rgdpo / emp
-K_over_Y = cn / rgdpo
-h = hc
-```
-
-Drop observations with missing or non-positive values in any required PWT variable.
-
 Do not use `pop` for the main calculation. Even though the problem wording says per capita, the model equation and the previous development-accounting convention use output per worker/person engaged:
 
 \[
 Y_c/N_c.
 \]
 
-## Barro--Lee mapping
+## Barro-Lee mapping
 
-Use the 2010 observations for population aged 25 and over.
+Use 2010 observations for population aged 25 and over.
 
-The Excel file may have multi-row headers and merged cells. Write a robust loader that handles this. Acceptable approach:
-
-1. Read the sheet with `header=None`.
-2. Identify or manually reconstruct the relevant columns from the visible header rows.
-3. Forward-fill country names if repeated country cells are blank after the first row.
-4. Keep rows with `year == 2010` and age group `25+`.
-5. Convert education columns to numeric.
-6. Map the four theta columns from total categories.
+The Excel file may have multi-row headers and merged cells. The loader must handle this robustly.
 
 Correct mapping:
 
@@ -237,7 +223,7 @@ Convert percentages to shares by dividing by 100. Then renormalize the four shar
 
 This renormalization is only for rounding or formatting issues. It must not hide a wrong mapping that double-counts `Completed` columns.
 
-Optional sanity check: if Australia 2010 is available, the raw total-category percentages should be approximately:
+Optional sanity check: if Australia 2010 is available, raw total-category percentages should be approximately:
 
 ```text
 No Schooling       0.8
@@ -248,13 +234,11 @@ Tertiary Total    38.0
 
 They should sum to 100.0 before dividing by 100. Do not make the whole script fail solely because this country label is absent or differs slightly.
 
-If reading `.xls` requires `xlrd` and it is not installed, stop with a clear message explaining that `.xls` reading requires `xlrd`.
-
 ## Country merge
 
-PWT has `countrycode`; Barro--Lee may only have country names.
+PWT has `countrycode`; Barro-Lee may only have country names.
 
-Implement a country-name normalization helper:
+Implement or reuse a country-name normalization helper:
 
 ```python
 def normalize_country_name(name: str) -> str:
@@ -269,22 +253,21 @@ The helper should:
 - handle simple punctuation differences where safe;
 - standardize common alternate names through a small alias dictionary if needed.
 
-Merge on normalized country names unless Barro--Lee has a reliable country-code field.
-
-Write unmatched names to diagnostics:
-
-```text
-solved/p6/code/output/p6_p4_unmatched_barro_lee.csv
-solved/p6/code/output/p6_p4_unmatched_pwt.csv
-```
+Merge on normalized country names unless Barro-Lee has a reliable country-code field.
 
 Do not silently proceed if the matched sample is implausibly small. Fail if fewer than 80 countries match.
 
-## US normalization
+Keep unmatched diagnostics in the output folder.
 
-Use `countrycode == "USA"` to identify the United States after merging with PWT.
+---
 
-Observed relative log output per worker:
+# Phase 1 — Frozen benchmark: item (a)
+
+**Status:** implemented and frozen in `p6_part3_p4_item_a.py`.
+
+No new work is required in this phase.
+
+The benchmark computes:
 
 \[
 \ln\frac{y_c}{y_U}
@@ -320,107 +303,322 @@ Model without aggregate firm productivity:
 \ln\frac{h_c}{h_U}.
 \]
 
-In code, verify that all US-relative terms are numerically zero for the United States up to tolerance.
+---
 
-## Required script
+# Phase 2 — Frozen benchmark: item (b)
 
-Create or validate this script:
+**Status:** implemented and frozen in `p6_part3_p4_item_a.py`.
+
+No new work is required in this phase.
+
+The benchmark computes variance-decomposition shares:
+
+\[
+s_x =
+\frac{\operatorname{Cov}(x_c,\ell^y_c)}
+{\operatorname{Var}(\ell^y_c)}.
+\]
+
+Components:
+
+```text
+firm_productivity
+capital_factor
+worker_human_capital
+residual
+total
+```
+
+The capital factor must include the model exponent:
+
+\[
+\ell^K_c =
+\frac{\gamma}{1-\gamma}
+\ln\left(
+\frac{K_c/Y_c}{K_U/Y_U}
+\right).
+\]
+
+Do not decompose using the raw `ln_K_over_Y_rel_us` without multiplying by `CAPITAL_EXPONENT`.
+
+---
+
+# Phase 3 — Frozen benchmark: item (c)
+
+**Status:** implemented and frozen in `p6_part3_p4_item_a.py`.
+
+No new work is required in this phase.
+
+The benchmark computes:
+
+```text
+firm_productivity_education_channel = share(firm_productivity)
+worker_human_capital_channel = share(worker_human_capital)
+total_education_contribution = firm_productivity_education_channel + worker_human_capital_channel
+human_capital_only = worker_human_capital_channel
+added_contribution_from_firm_productivity = firm_productivity_education_channel
+ratio_total_to_human_capital_only = total_education_contribution / human_capital_only
+```
+
+Using writeup notation:
+
+\[
+s_{education} = s_A + s_h.
+\]
+
+---
+
+# Phase 4 — Non-destructive refactor for submission-quality code
+
+**Status:** not implemented.
+
+## Phase 4 goal
+
+Create a cleaner, two-layer Python implementation suitable for delivery to the professor.
+
+Keep the current benchmark script unchanged:
 
 ```text
 solved/p6/code/p6_part3_p4_item_a.py
 ```
 
-The script should be modular and readable. Suggested structure:
+Add two new scripts:
+
+```text
+solved/p6/code/p6_part3_p4_unified_data.py
+solved/p6/code/p6_part3_p4_unified_modeling.py
+```
+
+The first script creates a clean unified base dataset from raw PWT + Barro-Lee.
+
+The second script loads only the unified base dataset and performs all model calculations, tables, and figures.
+
+## Phase 4 non-destructive rules
+
+1. Do not edit `solved/p6/code/p6_part3_p4_item_a.py`.
+2. Do not delete or rename existing benchmark outputs.
+3. Do not edit anything under `solved/p6/latex/`.
+4. Do not edit raw inputs under `data/`.
+5. Do not edit source documents under `docs/`.
+6. Add new files and new outputs only.
+7. Every new numerical output must be benchmarked against the existing output where applicable.
+8. If a benchmark comparison fails, stop with a clear error explaining which column differs and by how much.
+
+## Phase 4 output folder
+
+Create a separate output folder for the refactor:
+
+```text
+solved/p6/code/output/unified/
+```
+
+All new generated outputs from Phase 4 should go there.
+
+---
+
+## Phase 4A — Unified data script
+
+Create:
+
+```text
+solved/p6/code/p6_part3_p4_unified_data.py
+```
+
+This script should only do data loading, cleaning, country matching, and construction of the base country-level dataset.
+
+It must not compute model predictions, variance decompositions, or figures.
+
+### Inputs
+
+```text
+data/Barro_Lee.xls
+data/pwt1001.xlsx
+```
+
+### Required output
+
+```text
+solved/p6/code/output/unified/p6_p4_unified_base_data.csv
+```
+
+Also create diagnostics and summaries:
+
+```text
+solved/p6/code/output/unified/p6_p4_unified_data_summary.txt
+solved/p6/code/output/unified/p6_p4_unmatched_barro_lee.csv
+solved/p6/code/output/unified/p6_p4_unmatched_pwt.csv
+solved/p6/code/output/unified/p6_p4_unified_data_benchmark_check.csv
+solved/p6/code/output/unified/p6_p4_unified_data_benchmark_check.md
+```
+
+### Required columns in unified base data
+
+Include at least:
+
+```text
+countrycode
+country
+country_norm
+country_barro_lee
+year
+rgdpo
+emp
+cn
+hc
+theta_no_schooling
+theta_primary
+theta_secondary
+theta_tertiary
+theta_sum
+theta_sum_before_norm
+```
+
+Also include if useful:
+
+```text
+no_schooling_raw_pct
+primary_total_raw_pct
+secondary_total_raw_pct
+tertiary_total_raw_pct
+```
+
+Do not include model-calculated columns like `tilde_A`, `K_over_Y`, `y_observed`, log-relative terms, variance decomposition terms, or education-contribution terms. Those belong in the modeling script.
+
+### Unified data benchmark check
+
+Compare `p6_p4_unified_base_data.csv` against the existing benchmark:
+
+```text
+solved/p6/code/output/p6_p4_item_a_country_level.csv
+```
+
+For matching `countrycode`, the following columns should match exactly or up to numerical tolerance:
+
+```text
+rgdpo
+emp
+cn
+hc
+theta_no_schooling
+theta_primary
+theta_secondary
+theta_tertiary
+theta_sum
+```
+
+If available in the benchmark, also compare:
+
+```text
+theta_sum_before_norm
+country_norm
+country_barro_lee
+```
+
+Use a tight numerical tolerance for floating-point values, e.g.:
+
+```python
+NUMERIC_TOLERANCE = 1e-10
+```
+
+The benchmark check output should include:
+
+```text
+column
+max_abs_diff
+passed
+```
+
+The script should raise an error if any required benchmark check fails.
+
+### Unified data script structure
+
+Suggested structure:
 
 ```python
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
 YEAR = 2010
-US_CODE = "USA"
-GAMMA = 1 / 3
-CAPITAL_EXPONENT = GAMMA / (1 - GAMMA)
-
-Z_BY_GROUP = {...}
-EDUCATION_GROUPS = [...]
-
+NUMERIC_TOLERANCE = 1e-10
 
 def find_repo_root() -> Path:
     ...
 
+def ensure_input_file_exists(path: Path) -> None:
+    ...
 
 def normalize_country_name(name: str) -> str:
     ...
 
-
-def load_pwt(pwt_path: Path, year: int) -> pd.DataFrame:
+def load_pwt_base(pwt_path: Path, year: int) -> pd.DataFrame:
     ...
 
-
-def load_barro_lee(barro_path: Path, year: int) -> pd.DataFrame:
+def load_barro_lee_base(barro_path: Path, year: int) -> pd.DataFrame:
     ...
-
 
 def build_theta(bl_df: pd.DataFrame) -> pd.DataFrame:
     ...
 
-
-def compute_tilde_A(df: pd.DataFrame) -> pd.DataFrame:
+def merge_base_data(pwt_df: pd.DataFrame, bl_df: pd.DataFrame, output_dir: Path) -> pd.DataFrame:
     ...
 
-
-def merge_data(pwt_df: pd.DataFrame, bl_df: pd.DataFrame, output_dir: Path) -> pd.DataFrame:
+def write_unified_base_data(df: pd.DataFrame, output_dir: Path) -> Path:
     ...
 
-
-def add_model_terms(df: pd.DataFrame) -> pd.DataFrame:
+def compare_unified_data_to_benchmark(unified_df: pd.DataFrame, benchmark_path: Path, output_dir: Path) -> pd.DataFrame:
     ...
-
-
-def make_scatter_plot(df: pd.DataFrame, x_col: str, y_col: str, output_path: Path, title: str) -> None:
-    ...
-
 
 def run() -> None:
     ...
-
 
 if __name__ == "__main__":
     run()
 ```
 
-Avoid duplicated logic. Prefer small functions with clear names over one long script.
+Keep it modular and readable.
 
-## Required generated outputs for item (a)
+---
 
-Create or validate these files:
+## Phase 4B — Unified modeling script
+
+Create:
 
 ```text
-solved/p6/code/output/p6_p4_item_a_country_level.csv
-solved/p6/code/output/p6_p4_item_a_with_A.png
-solved/p6/code/output/p6_p4_item_a_without_A.png
+solved/p6/code/p6_part3_p4_unified_modeling.py
 ```
 
-Optional but useful:
+This script must load only:
 
 ```text
-solved/p6/code/output/p6_p4_item_a_summary.txt
+solved/p6/code/output/unified/p6_p4_unified_base_data.csv
 ```
 
-The country-level CSV should include at least:
+It should not load raw PWT or raw Barro-Lee.
+
+If the unified base dataset is missing, stop with a clear error instructing the user to run:
+
+```bash
+py solved/p6/code/p6_part3_p4_unified_data.py
+```
+
+### Required outputs
+
+Create:
 
 ```text
-countrycode
-country
-year
-theta_no_schooling
-theta_primary
-theta_secondary
-theta_tertiary
-theta_sum
+solved/p6/code/output/unified/p6_p4_unified_country_level.csv
+solved/p6/code/output/unified/p6_p4_unified_modeling_summary.txt
+solved/p6/code/output/unified/p6_p4_unified_modeling_benchmark_check.csv
+solved/p6/code/output/unified/p6_p4_unified_modeling_benchmark_check.md
+```
+
+### Required columns in unified country-level output
+
+Include at least all base-data columns plus:
+
+```text
 Z_no_schooling
 Z_primary
 Z_secondary
@@ -435,19 +633,68 @@ ln_K_over_Y_rel_us
 ln_h_rel_us
 ln_yhat_with_A_rel_us
 ln_yhat_without_A_rel_us
+ln_capital_factor_rel_us
+residual
 ```
 
-## Required figures for item (a)
+### Modeling benchmark check
 
-Generate two separate scatter plots.
-
-### Figure 1: with aggregate firm productivity
-
-File:
+Compare `p6_p4_unified_country_level.csv` against:
 
 ```text
-solved/p6/code/output/p6_p4_item_a_with_A.png
+solved/p6/code/output/p6_p4_item_a_country_level.csv
 ```
+
+For matching `countrycode`, verify that all relevant model and result columns match up to numerical tolerance:
+
+```text
+tilde_A
+y_observed
+K_over_Y
+h
+ln_y_rel_us
+ln_tilde_A_rel_us
+ln_K_over_Y_rel_us
+ln_h_rel_us
+ln_yhat_with_A_rel_us
+ln_yhat_without_A_rel_us
+ln_capital_factor_rel_us
+residual
+```
+
+Use:
+
+```python
+NUMERIC_TOLERANCE = 1e-10
+```
+
+If any benchmark check fails, raise an error.
+
+Also compare item (b) and item (c) outputs generated by the unified modeling script against the existing benchmark files:
+
+```text
+solved/p6/code/output/p6_p4_item_b_variance_decomposition.csv
+solved/p6/code/output/p6_p4_item_c_education_contribution.csv
+```
+
+---
+
+## Phase 4B item (a): PDF figures in Spanish
+
+Create main report figures in PDF format.
+
+Required main PDF figures:
+
+```text
+solved/p6/code/output/unified/p6_p4_unified_item_a_with_A_relative.pdf
+solved/p6/code/output/unified/p6_p4_unified_item_a_without_A_relative.pdf
+```
+
+These are the figures intended for the report.
+
+### Main figure axes
+
+Figure with aggregate firm productivity:
 
 Horizontal axis:
 
@@ -461,13 +708,7 @@ Vertical axis:
 \ln(y_c/y_U)
 \]
 
-### Figure 2: without aggregate firm productivity
-
-File:
-
-```text
-solved/p6/code/output/p6_p4_item_a_without_A.png
-```
+Figure without aggregate firm productivity:
 
 Horizontal axis:
 
@@ -481,319 +722,131 @@ Vertical axis:
 \ln(y_c/y_U)
 \]
 
-For both plots:
+### Main figure formatting
 
-- include a 45-degree line;
-- use readable titles;
-- label axes clearly;
-- include the year in the title or subtitle;
-- use the same axis limits across both figures if practical;
-- save at high enough resolution, e.g. `dpi=200`;
-- close figures after saving.
+All visible text in the figures must be in Spanish.
 
-Country labels are optional. If labels are used, label only a few relevant countries such as USA, ARG, AUS, CHN, IND, DEU, BRA, and MEX if present. Do not require optional label-adjustment packages.
+Use titles/labels similar to:
 
-## Required checks for item (a)
+```text
+Ingreso observado vs. ingreso explicado
+Modelo con productividad agregada de firmas
+Modelo sin productividad agregada de firmas
+Ingreso explicado relativo a EE.UU. (log)
+Ingreso observado relativo a EE.UU. (log)
+Año 2010
+Línea de 45°
+```
 
-The script must check:
+Use fixed axis limits across both main figures so they are directly comparable.
 
-1. `YEAR == 2010` exists in both datasets.
-2. Required PWT columns exist.
-3. Barro--Lee columns are mapped correctly to no schooling / primary total / secondary total / tertiary total.
-4. Education shares are nonnegative.
-5. Education shares sum to one after normalization.
-6. `Z_i = exp(z_i)` matches approximately:
-   - no schooling: 1.32;
-   - primary: 1.83;
-   - secondary: 2.53;
-   - tertiary: 3.32.
-7. `h_i = exp(0.08 * s_i)` matches approximately:
-   - no schooling: 1.00;
-   - primary: 1.62;
-   - secondary: 2.61;
-   - tertiary: 3.90.
-   This is only a statement/table sanity check, not a variable used for worker human capital in the empirical computation.
-8. `tilde_A > 0` for every country in the final sample.
-9. `y_observed > 0`, `K_over_Y > 0`, and `h > 0`.
-10. The United States exists in the final sample.
-11. For the United States:
-    - `ln_y_rel_us` is approximately zero;
-    - `ln_tilde_A_rel_us` is approximately zero;
-    - `ln_K_over_Y_rel_us` is approximately zero;
-    - `ln_h_rel_us` is approximately zero;
-    - both model-predicted relative log income values are approximately zero.
-12. Both figure files exist after the run.
+The limits must not drop any points.
 
-Use assertions or explicit exceptions with useful messages.
+Recommended approach:
 
-The script must print a concise run summary:
+1. Compute min and max across:
+   - `ln_y_rel_us`
+   - `ln_yhat_with_A_rel_us`
+   - `ln_yhat_without_A_rel_us`
+2. Add a margin, e.g. 5% of the range.
+3. Use the same `(min_limit, max_limit)` for both x-axis and y-axis in both main figures.
 
-- year used;
-- number of PWT countries loaded;
-- number of Barro--Lee countries loaded;
-- number of matched countries;
-- output paths created;
-- warnings if education shares were far from summing to one before normalization;
-- unresolved matching or data issues, if any.
+Close figures after saving.
 
-## Item (b) placeholder — do not implement yet
+Use vector PDF output. Do not save these main report figures only as PNG.
 
-Later, add the variance decomposition here. Do not implement it now.
+Optional PNG copies are allowed only if explicitly useful, but PDF is required.
 
-Expected future extension:
+Country labels are optional. If labels are used, label only a small set such as:
 
-- consume the item (a) country-level CSV if useful;
-- define the decomposition variables;
-- compute covariance-over-variance shares;
-- export a decomposition table;
-- validate that shares sum appropriately.
+```text
+USA, ARG, AUS, CHN, IND, DEU, BRA, MEX
+```
 
-## Item (c) placeholder — do not implement yet
-
-Later, add the education-total contribution here. Do not implement it now.
-
-Expected future extension:
-
-- combine the worker-human-capital channel and entrepreneurial-productivity channel;
-- compare total education contribution against the worker-human-capital-only contribution.
-
-## Final response expected from Codex
-
-After inspecting, creating, patching, or running the script, Codex should report only:
-
-1. whether the script already existed, was patched, or was created;
-2. files created or modified;
-3. command used to reproduce;
-4. number of matched countries;
-5. output figure paths;
-6. checks passed;
-7. unresolved matching/data issues, if any.
-
-Do not present unverified numerical results as final.
-
-# DESIGN.md Addendum — Phase 2, PS6 Part III, Problem 4(b)
-
-## How to apply this addendum
-
-Append this section to the **end** of `solved/p6/DESIGN.md`.
-
-Do **not** replace the whole file.
-
-Do **not** modify `solved/p6/AGENTS.md`.
-
-This is an incremental phase. Preserve the completed item (a) pipeline unless a targeted change is strictly needed to reuse its country-level variables.
+Do not require optional label-adjustment packages.
 
 ---
 
-## Phase 2 — Item (b): Variance decomposition
+## Phase 4B item (a): absolute debug figures
 
-**Status:** not implemented.
+Create additional debug figures in PDF format using absolute log output.
 
-### Task scope
+These are not the main report figures. They are only for debugging and comparison with classmates.
 
-Implement **only PS6, Part III, Problem 4, item (b)**.
-
-The item (a) script is already considered complete/frozen. The new task is to extend the empirical pipeline so it computes the variance decomposition requested in item (b):
-
-- aggregate firm productivity,
-- capital-output factor,
-- worker human capital,
-- residual.
-
-Do **not** implement item (c) yet.
-
-Do **not** rewrite the item (a) pipeline from scratch.
-
-Do **not** delete or rename existing item (a) outputs.
-
-### Existing item (a) outputs to preserve
-
-The following item (a) outputs should continue to be produced exactly as before:
+Required debug PDF figures:
 
 ```text
-solved/p6/code/output/p6_p4_item_a_country_level.csv
-solved/p6/code/output/p6_p4_item_a_with_A.png
-solved/p6/code/output/p6_p4_item_a_without_A.png
-solved/p6/code/output/p6_p4_item_a_summary.txt
+solved/p6/code/output/unified/p6_p4_unified_item_a_with_A_absolute_debug.pdf
+solved/p6/code/output/unified/p6_p4_unified_item_a_without_A_absolute_debug.pdf
 ```
 
-If the current script already creates these files and passes checks, reuse it.
+### Treatment of the unknown constant in absolute debug figures
 
-### Recommended implementation strategy
+The model with \(\tilde A_c\) is identified up to a constant. Therefore, absolute predicted log output must be calibrated.
 
-Update the existing script:
-
-```text
-solved/p6/code/p6_part3_p4_item_a.py
-```
-
-Do this incrementally:
-
-1. Inspect the existing script and country-level variables.
-2. If item (a) is already implemented up to spec, preserve the existing data-loading, merge, plotting, and item (a) calculations.
-3. Add item (b) functions for the variance decomposition.
-4. Re-run the full script so item (a) outputs are still generated and item (b) outputs are added.
-
-Do not create a second parallel script unless the current script is unusable.
-
-### Variables for item (b)
-
-Use the variables already constructed for item (a), all in logs relative to the United States:
-
-```python
-ln_y_rel_us
-ln_tilde_A_rel_us
-ln_K_over_Y_rel_us
-ln_h_rel_us
-```
-
-These correspond to:
+For debug figures, use the US anchor:
 
 \[
-\ell^y_c \equiv \ln\frac{y_c}{y_U},
-\]
-
-\[
-\ell^A_c \equiv \ln\frac{\tilde A_c}{\tilde A_U},
-\]
-
-\[
-\ell^K_c \equiv
-\frac{\gamma}{1-\gamma}
-\ln\left(
-\frac{K_c/Y_c}{K_U/Y_U}
-\right),
-\]
-
-\[
-\ell^h_c \equiv \ln\frac{h_c}{h_U}.
-\]
-
-Important naming detail:
-
-- `ln_K_over_Y_rel_us` is only the raw relative log capital-output ratio:
-  \[
-  \ln\left((K_c/Y_c)/(K_U/Y_U)\right).
-  \]
-- For the variance decomposition component, create a separate variable that includes the model exponent:
-  \[
-  \ell^K_c =
-  \frac{\gamma}{1-\gamma}
-  \ln\left((K_c/Y_c)/(K_U/Y_U)\right).
-  \]
-
-Preferred code name:
-
-```python
-ell_K
-```
-
-or:
-
-```python
-ln_capital_factor_rel_us
-```
-
-Do not accidentally decompose using the raw capital-output log without multiplying by `capital_exponent`.
-
-### Residual definition
-
-Define the residual as:
-
-\[
-\varepsilon_c
+\widehat{\ln y_c}^{abs}
 =
-\ell^y_c
--
-\ell^A_c
--
-\ell^K_c
--
-\ell^h_c.
+\ln y_U
++
+\widehat{\ln(y_c/y_U)}.
 \]
 
-In code, create:
+That is, convert relative model predictions into absolute log-output predictions by adding observed US log output.
+
+This makes the United States fit exactly by construction and is only a normalization for debugging. Make this clear in titles, labels, or summary text.
+
+Create:
 
 ```python
-residual = (
-    ln_y_rel_us
-    - ln_tilde_A_rel_us
-    - ln_capital_factor_rel_us
-    - ln_h_rel_us
-)
+ln_y_abs = np.log(y_observed)
+ln_yhat_with_A_abs_us_anchor = np.log(y_US) + ln_yhat_with_A_rel_us
+ln_yhat_without_A_abs_us_anchor = np.log(y_US) + ln_yhat_without_A_rel_us
 ```
 
-This implies:
+### Absolute debug figure formatting
 
-\[
-\ell^y_c
-=
-\ell^A_c
-+
-\ell^K_c
-+
-\ell^h_c
-+
-\varepsilon_c.
-\]
+All visible text must be in Spanish.
 
-### Variance decomposition formula
-
-For each component \(x_c\), compute:
-
-\[
-s_x =
-\frac{\operatorname{Cov}(x_c, \ell^y_c)}
-{\operatorname{Var}(\ell^y_c)}.
-\]
-
-Use sample covariance and sample variance consistently. In pandas, the default `.cov()` and `.var()` both use `ddof=1`, so that is acceptable.
-
-Compute:
-
-\[
-s_A =
-\frac{\operatorname{Cov}(\ell^A_c,\ell^y_c)}
-{\operatorname{Var}(\ell^y_c)},
-\]
-
-\[
-s_K =
-\frac{\operatorname{Cov}(\ell^K_c,\ell^y_c)}
-{\operatorname{Var}(\ell^y_c)},
-\]
-
-\[
-s_h =
-\frac{\operatorname{Cov}(\ell^h_c,\ell^y_c)}
-{\operatorname{Var}(\ell^y_c)},
-\]
-
-\[
-s_\varepsilon =
-\frac{\operatorname{Cov}(\varepsilon_c,\ell^y_c)}
-{\operatorname{Var}(\ell^y_c)}.
-\]
-
-The four shares should sum to one up to numerical tolerance:
-
-\[
-s_A + s_K + s_h + s_\varepsilon \approx 1.
-\]
-
-### Required item (b) outputs
-
-Add these generated files:
+Use titles/labels similar to:
 
 ```text
-solved/p6/code/output/p6_p4_item_b_variance_decomposition.csv
-solved/p6/code/output/p6_p4_item_b_variance_decomposition.md
+Figura de depuración: ingreso absoluto observado vs. explicado
+Modelo con productividad agregada de firmas, anclado en EE.UU.
+Modelo sin productividad agregada de firmas, anclado en EE.UU.
+Ingreso explicado absoluto (log, anclado en EE.UU.)
+Ingreso observado absoluto (log)
+Año 2010
+Línea de 45°
 ```
 
-Optional but useful:
+Use fixed axis limits across both absolute debug figures.
+
+The limits must not drop any points.
+
+Recommended approach:
+
+1. Compute min and max across:
+   - `ln_y_abs`
+   - `ln_yhat_with_A_abs_us_anchor`
+   - `ln_yhat_without_A_abs_us_anchor`
+2. Add a margin.
+3. Use the same limits for both x and y in both absolute debug figures.
+
+---
+
+## Phase 4B item (b): tables in CSV, Markdown, and LaTeX
+
+Generate item (b) variance-decomposition tables from the unified modeling script.
+
+Required outputs:
 
 ```text
-solved/p6/code/output/p6_p4_item_b_summary.txt
+solved/p6/code/output/unified/p6_p4_unified_item_b_variance_decomposition.csv
+solved/p6/code/output/unified/p6_p4_unified_item_b_variance_decomposition.md
+solved/p6/code/output/unified/p6_p4_unified_item_b_variance_decomposition.tex
 ```
 
 The CSV/Markdown table should include at least:
@@ -805,212 +858,52 @@ covariance_with_ln_y
 variance_ln_y
 ```
 
-Use component labels similar to:
+Use Spanish labels in Markdown and LaTeX where appropriate.
+
+Suggested Spanish display labels:
 
 ```text
-firm_productivity
-capital_factor
-worker_human_capital
-residual
-total
+Productividad de firmas
+Factor capital
+Capital humano trabajadores
+Residuo
+Total
 ```
 
-The `total` row should report the sum of shares.
+The LaTeX table should use the style:
 
-### Country-level CSV update
+```latex
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lrrr}
+        \toprule
+        Componente & Participación & Covarianza con $\ell^y_c$ & Varianza de $\ell^y_c$ \\
+        \midrule
+        ...
+        \bottomrule
+    \end{tabular}
 
-Also add the item (b) decomposition variables to the existing country-level CSV:
-
-```text
-ln_capital_factor_rel_us
-residual
+    \caption{Descomposición de varianza del ingreso relativo.}
+    \label{tab:p6_p4_var_decomp}
+\end{table}
 ```
 
-Keep the existing item (a) columns.
+Use `booktabs` conventions: `\toprule`, `\midrule`, `\bottomrule`.
 
-### Required checks
-
-Add explicit checks that:
-
-1. The final sample used for item (b) has no missing values in:
-   - `ln_y_rel_us`,
-   - `ln_tilde_A_rel_us`,
-   - `ln_capital_factor_rel_us`,
-   - `ln_h_rel_us`,
-   - `residual`.
-2. `ln_capital_factor_rel_us` equals:
-   ```python
-   capital_exponent * ln_K_over_Y_rel_us
-   ```
-   up to numerical tolerance.
-3. `residual` satisfies:
-   ```python
-   ln_y_rel_us == (
-       ln_tilde_A_rel_us
-       + ln_capital_factor_rel_us
-       + ln_h_rel_us
-       + residual
-   )
-   ```
-   up to numerical tolerance.
-4. The variance of `ln_y_rel_us` is positive.
-5. The variance-decomposition shares sum to one up to numerical tolerance, e.g. absolute error below `1e-10` or a similarly tight tolerance.
-6. Existing item (a) checks still pass.
-7. Existing item (a) figure files still exist after the run.
-8. New item (b) table files exist after the run.
-
-### Console summary
-
-At the end of the script, extend the run summary to include:
-
-- item (b) was computed;
-- variance decomposition output paths;
-- sum of shares;
-- maximum absolute reconstruction error for:
-  \[
-  \ell^y_c
-  =
-  \ell^A_c
-  +
-  \ell^K_c
-  +
-  \ell^h_c
-  +
-  \varepsilon_c.
-  \]
-
-### Do not implement yet
-
-Do not implement item (c).
-
-Do not add interpretation of total education contribution yet.
-
-Do not change the user-written LaTeX unless explicitly requested.
-
-Do not refactor the whole project or create general infrastructure for the full problem set.
-
-### Expected Codex final response
-
-After running the script, report only:
-
-1. files created or modified;
-2. command used to reproduce;
-3. number of countries in the item (b) sample;
-4. variance-decomposition table path;
-5. share sum check;
-6. item (a) outputs still present;
-7. any unresolved data/matching issues.
-
-Do not present unverified numerical results as final.
-
-# DESIGN.md Addendum — Phase 3, PS6 Part III, Problem 4(c)
-
-## How to apply this addendum
-
-Append this section to the **end** of `solved/p6/DESIGN.md`.
-
-Do **not** replace the whole file.
-
-Do **not** modify `solved/p6/AGENTS.md`.
-
-This is an incremental phase. Preserve the completed item (a) and item (b) pipeline unless a targeted change is strictly needed to reuse existing outputs or variables.
+Do not include a full LaTeX document preamble. Output only the table environment.
 
 ---
 
-## Phase 3 — Item (c): Total education contribution
+## Phase 4B item (c): tables in CSV, Markdown, and LaTeX
 
-**Status:** not implemented.
+Generate item (c) education-contribution tables from the unified modeling script.
 
-### Task scope
-
-Implement **only PS6, Part III, Problem 4, item (c)**.
-
-Item (a) and item (b) are considered complete/frozen. The new task is to extend the existing Python script so that it reproducibly computes the total contribution of education differences across countries.
-
-Do **not** implement new plots.
-
-Do **not** modify human-written LaTeX.
-
-Do **not** rewrite the item (a) or item (b) pipeline from scratch.
-
-### Required implementation target
-
-Update the existing script:
+Required outputs:
 
 ```text
-solved/p6/code/p6_part3_p4_item_a.py
-```
-
-It is expected that running the script regenerates all outputs for items (a), (b), and (c).
-
-Important distinction:
-
-- It is OK for the Python script to recreate output files on every run.
-- It is not OK for Codex to rewrite the whole Python script from scratch.
-- Add item (c) as an incremental extension inside the existing script, preferably using small dedicated functions.
-
-### Economic definition
-
-Use the variance-decomposition results from item (b).
-
-Education affects income through two channels:
-
-1. Entrepreneur / firm-productivity channel:
-   ```text
-   firm_productivity
-   ```
-2. Worker human-capital channel:
-   ```text
-   worker_human_capital
-   ```
-
-Define:
-
-```text
-firm_productivity_education_channel = share(firm_productivity)
-worker_human_capital_channel = share(worker_human_capital)
-total_education_contribution = firm_productivity_education_channel + worker_human_capital_channel
-human_capital_only = worker_human_capital_channel
-added_contribution_from_firm_productivity = firm_productivity_education_channel
-ratio_total_to_human_capital_only = total_education_contribution / human_capital_only
-```
-
-Using the notation from the writeup:
-
-\[
-s_{education} = s_A + s_h.
-\]
-
-### Required code structure
-
-Reuse the item (b) variance-decomposition dataframe computed inside the script.
-
-Add a function similar to:
-
-```python
-def compute_education_contribution(variance_decomposition: pd.DataFrame) -> pd.DataFrame:
-    ...
-```
-
-Add a function similar to:
-
-```python
-def write_item_c_outputs(education_contribution: pd.DataFrame, output_dir: Path) -> dict[str, Path]:
-    ...
-```
-
-Call these functions from the existing `run()` flow after item (b) is computed.
-
-Avoid duplicating calculations already done for item (b).
-
-### Required new outputs
-
-The Python script must generate these files on every run:
-
-```text
-solved/p6/code/output/p6_p4_item_c_education_contribution.csv
-solved/p6/code/output/p6_p4_item_c_education_contribution.md
-solved/p6/code/output/p6_p4_item_c_summary.txt
+solved/p6/code/output/unified/p6_p4_unified_item_c_education_contribution.csv
+solved/p6/code/output/unified/p6_p4_unified_item_c_education_contribution.md
+solved/p6/code/output/unified/p6_p4_unified_item_c_education_contribution.tex
 ```
 
 The CSV/Markdown table should include at least:
@@ -1020,81 +913,225 @@ concept
 value
 ```
 
-Required concept labels:
+Use Spanish labels in Markdown and LaTeX where appropriate.
+
+Suggested Spanish display labels:
 
 ```text
-firm_productivity_education_channel
-worker_human_capital_channel
-total_education_contribution
-human_capital_only
-added_contribution_from_firm_productivity
-ratio_total_to_human_capital_only
+Canal productividad de firmas
+Canal capital humano trabajadores
+Contribución total de educación
+Capital humano solamente
+Contribución adicional del canal firmas
+Ratio total / capital humano
 ```
 
-### Required checks
+The LaTeX table should use the style:
 
-Add explicit checks that:
+```latex
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lr}
+        \toprule
+        Concepto & Valor \\
+        \midrule
+        ...
+        \bottomrule
+    \end{tabular}
 
-1. The item (b) variance-decomposition table contains:
-   - `firm_productivity`
-   - `worker_human_capital`
-2. `total_education_contribution` equals:
-   ```python
-   firm_productivity_education_channel + worker_human_capital_channel
-   ```
-   up to numerical tolerance.
-3. `human_capital_only` equals:
-   ```python
-   worker_human_capital_channel
-   ```
-   up to numerical tolerance.
-4. `added_contribution_from_firm_productivity` equals:
-   ```python
-   firm_productivity_education_channel
-   ```
-   up to numerical tolerance.
-5. `ratio_total_to_human_capital_only` equals:
-   ```python
-   total_education_contribution / human_capital_only
-   ```
-   up to numerical tolerance.
-6. Existing item (a) outputs still exist after running.
-7. Existing item (b) outputs still exist after running.
-8. New item (c) outputs exist after running.
+    \caption{Contribución total de la educación.}
+    \label{tab:p6_p4_education_contribution}
+\end{table}
+```
 
-### Console and summary output
+Use `booktabs` conventions.
 
-Extend the script summary to include:
+Do not include a full LaTeX document preamble. Output only the table environment.
 
-- item (c) was computed;
-- total education contribution;
-- human-capital-only contribution;
-- added firm-productivity / entrepreneur contribution;
-- ratio total education contribution to human-capital-only contribution;
-- output paths for item (c).
+---
 
-### Do not implement
+## Phase 4B optional parameter table
 
-Do not implement new plots for item (c).
+If useful, create a small parameter table for the education groups.
 
-Do not modify item (a) figures.
+Required only if easy and non-invasive:
 
-Do not modify human-written LaTeX.
+```text
+solved/p6/code/output/unified/p6_p4_unified_education_parameters.md
+solved/p6/code/output/unified/p6_p4_unified_education_parameters.tex
+```
 
-Do not change data loading, country matching, or item (a)/(b) formulas unless a targeted fix is strictly required.
+Columns:
 
-Do not create a new parallel script unless the existing script is unusable.
+```text
+i
+grupo
+s_i
+z_i
+Z_i
+h_i
+```
 
-### Expected Codex final response
+Spanish group labels:
 
-After running the script, Codex should report only:
+```text
+Sin escolaridad
+Primaria
+Secundaria
+Superior
+```
+
+Use \(h_i=\exp(0.08s_i)\) only as a statement/table sanity check. It is not the worker-human-capital series used in the empirical computation.
+
+LaTeX caption:
+
+```latex
+\caption{Tipos educativos, años de escolaridad y productividad emprendedora.}
+```
+
+LaTeX label:
+
+```latex
+\label{tab:p6_p4_education_parameters}
+```
+
+---
+
+## Phase 4B script structure
+
+Suggested structure:
+
+```python
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+YEAR = 2010
+US_CODE = "USA"
+GAMMA = 1 / 3
+CAPITAL_EXPONENT = GAMMA / (1 - GAMMA)
+NUMERIC_TOLERANCE = 1e-10
+
+def find_repo_root() -> Path:
+    ...
+
+def ensure_input_file_exists(path: Path) -> None:
+    ...
+
+def load_unified_base_data(path: Path) -> pd.DataFrame:
+    ...
+
+def compute_tilde_A(df: pd.DataFrame) -> pd.DataFrame:
+    ...
+
+def add_model_terms(df: pd.DataFrame) -> pd.DataFrame:
+    ...
+
+def add_item_b_terms(df: pd.DataFrame) -> tuple[pd.DataFrame, float]:
+    ...
+
+def compute_variance_decomposition(df: pd.DataFrame) -> pd.DataFrame:
+    ...
+
+def compute_education_contribution(variance_decomposition: pd.DataFrame) -> pd.DataFrame:
+    ...
+
+def write_markdown_table(...):
+    ...
+
+def write_latex_table(...):
+    ...
+
+def make_scatter_plot_pdf(...):
+    ...
+
+def compare_modeling_to_benchmark(...):
+    ...
+
+def run() -> None:
+    ...
+
+if __name__ == "__main__":
+    run()
+```
+
+Keep code readable and modular.
+
+Avoid duplicated logic.
+
+---
+
+## Phase 4 required checks
+
+The new scripts must check:
+
+### Unified data checks
+
+1. Required input files exist.
+2. `YEAR == 2010` exists in PWT and Barro-Lee.
+3. Required PWT columns exist.
+4. Barro-Lee columns are mapped correctly to no schooling / primary total / secondary total / tertiary total.
+5. Education shares are nonnegative.
+6. Education shares sum to one after normalization.
+7. The United States exists in the merged sample.
+8. Matched sample has at least 80 countries.
+9. Unified base data benchmark check passes against `p6_p4_item_a_country_level.csv`.
+
+### Unified modeling checks
+
+1. Unified base data file exists.
+2. `tilde_A > 0`.
+3. `y_observed > 0`, `K_over_Y > 0`, and `h > 0`.
+4. US-relative terms are zero for the United States up to tolerance.
+5. Benchmark check passes for model columns against `p6_p4_item_a_country_level.csv`.
+6. Item (b) decomposition shares sum to one.
+7. Item (b) benchmark check passes against `p6_p4_item_b_variance_decomposition.csv`.
+8. Item (c) values match definitions.
+9. Item (c) benchmark check passes against `p6_p4_item_c_education_contribution.csv`.
+10. Main PDF figures exist.
+11. Absolute debug PDF figures exist.
+12. Markdown and LaTeX table outputs exist.
+
+---
+
+## Phase 4 commands to run
+
+From the repository root:
+
+```bash
+py solved/p6/code/p6_part3_p4_unified_data.py
+py solved/p6/code/p6_part3_p4_unified_modeling.py
+```
+
+If the environment requires the project virtualenv on `PYTHONPATH`, use the known local convention:
+
+```powershell
+$env:PYTHONPATH='C:\AcademicRepos\MacroDevBase\.venv\Lib\site-packages'
+py solved/p6/code/p6_part3_p4_unified_data.py
+py solved/p6/code/p6_part3_p4_unified_modeling.py
+```
+
+The scripts themselves must not depend on absolute paths.
+
+---
+
+## Phase 4 expected Codex final response
+
+After implementation and running both scripts, Codex should report only:
 
 1. files created or modified;
-2. command used to reproduce;
-3. item (c) output paths;
-4. item (c) numerical values;
-5. checks passed;
-6. item (a) and item (b) outputs still present;
-7. any unresolved data/matching issues.
+2. commands used to reproduce;
+3. whether the frozen benchmark script was left untouched;
+4. unified base-data output path;
+5. unified modeling output path;
+6. main report PDF figure paths;
+7. absolute debug PDF figure paths;
+8. Markdown and LaTeX table paths;
+9. benchmark checks passed;
+10. unresolved matching/data issues, if any.
 
 Do not present unverified numerical results as final.
+
+Do not modify manual LaTeX.
