@@ -2,12 +2,8 @@
 
 from pathlib import Path
 import os
-import sys
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-LOCAL_SITE_PACKAGES = SCRIPT_DIR.parents[3] / ".venv" / "Lib" / "site-packages"
-if LOCAL_SITE_PACKAGES.exists():
-    sys.path.insert(0, str(LOCAL_SITE_PACKAGES))
 
 OUTPUT_DIR = SCRIPT_DIR / "output"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -47,9 +43,9 @@ VARIANCE_COMPONENT_LABELS_ES = {
 EDUCATION_CONCEPT_LABELS_ES = {
     "firm_productivity_education_channel": "Canal productividad de firmas",
     "worker_human_capital_channel": "Canal capital humano trabajadores",
-    "total_education_contribution": "Contribuci\u00f3n total de educaci\u00f3n",
+    "total_education_contribution": "Contribución total de educación",
     "human_capital_only": "Capital humano solamente",
-    "added_contribution_from_firm_productivity": "Contribuci\u00f3n adicional del canal firmas",
+    "added_contribution_from_firm_productivity": "Contribución adicional del canal firmas",
     "ratio_total_to_human_capital_only": "Ratio total / capital humano",
 }
 
@@ -82,7 +78,7 @@ def make_scatter(
 ) -> None:
     fig, ax = plt.subplots(figsize=(8, 6))
     ax.scatter(df[x_col], df[y_col], alpha=0.7, edgecolor="white", linewidth=0.4)
-    ax.plot(limits, limits, linestyle="--", color="black", linewidth=1.0, label="L\u00ednea de 45\u00b0")
+    ax.plot(limits, limits, linestyle="--", color="black", linewidth=1.0, label="Línea de 45°")
 
     labels_df = df[df["countrycode"].isin(PLOT_LABEL_CODES)].copy()
     for row in labels_df.itertuples(index=False):
@@ -98,7 +94,7 @@ def make_scatter(
     ax.set_ylim(limits)
     ax.set_xlabel("Ingreso explicado relativo a EE.UU. (log)")
     ax.set_ylabel("Ingreso observado relativo a EE.UU. (log)")
-    ax.set_title(f"{title}\n{subtitle}\nA\u00f1o 2010")
+    ax.set_title(f"{title}\n{subtitle}\nAño 2010")
     ax.grid(alpha=0.25)
     ax.legend(frameon=False, loc="upper left")
     fig.tight_layout()
