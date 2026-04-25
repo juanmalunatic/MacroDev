@@ -18,6 +18,15 @@ Variance decomposition output paths:
 - solved\p6\code\output\p6_p4_item_b_summary.txt
 Variance-decomposition share sum: 1.000000000000
 Max absolute reconstruction error: 8.882e-16
+Item (c) computed: yes.
+Item (c) output paths:
+- solved\p6\code\output\p6_p4_item_c_education_contribution.csv
+- solved\p6\code\output\p6_p4_item_c_education_contribution.md
+- solved\p6\code\output\p6_p4_item_c_summary.txt
+Total education contribution: 0.298239704030
+Human-capital-only contribution: 0.191191084723
+Added firm-productivity contribution: 0.107048619307
+Ratio total education contribution to human-capital-only contribution: 1.559903823247
 Unresolved issues:
 - 6 Barro-Lee countries remain unmatched by name.
 - Some matched countries were dropped for missing/non-positive PWT variables: Guyana.

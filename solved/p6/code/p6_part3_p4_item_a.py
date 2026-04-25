@@ -495,6 +495,99 @@ def write_markdown_table(df: pd.DataFrame, output_path: Path) -> None:
     output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def compute_education_contribution(variance_decomposition: pd.DataFrame) -> pd.DataFrame:
+    decomposition = variance_decomposition.set_index("component")
+    required_components = {"firm_productivity", "worker_human_capital"}
+    missing_components = sorted(required_components - set(decomposition.index))
+    if missing_components:
+        raise AssertionError(
+            f"Item (b) variance-decomposition table is missing required components: {missing_components}"
+        )
+
+    firm_productivity_education_channel = float(decomposition.loc["firm_productivity", "share"])
+    worker_human_capital_channel = float(decomposition.loc["worker_human_capital", "share"])
+    total_education_contribution = (
+        firm_productivity_education_channel + worker_human_capital_channel
+    )
+    human_capital_only = worker_human_capital_channel
+    added_contribution_from_firm_productivity = firm_productivity_education_channel
+
+    if np.isclose(human_capital_only, 0.0, atol=1e-12, rtol=0.0):
+        raise AssertionError(
+            "worker_human_capital_channel is numerically zero, so ratio_total_to_human_capital_only is undefined."
+        )
+
+    ratio_total_to_human_capital_only = total_education_contribution / human_capital_only
+
+    if not np.isclose(
+        total_education_contribution,
+        firm_productivity_education_channel + worker_human_capital_channel,
+        atol=1e-10,
+        rtol=0.0,
+    ):
+        raise AssertionError("total_education_contribution must equal the sum of the two education channels.")
+    if not np.isclose(human_capital_only, worker_human_capital_channel, atol=1e-10, rtol=0.0):
+        raise AssertionError("human_capital_only must equal worker_human_capital_channel.")
+    if not np.isclose(
+        added_contribution_from_firm_productivity,
+        firm_productivity_education_channel,
+        atol=1e-10,
+        rtol=0.0,
+    ):
+        raise AssertionError(
+            "added_contribution_from_firm_productivity must equal firm_productivity_education_channel."
+        )
+    if not np.isclose(
+        ratio_total_to_human_capital_only,
+        total_education_contribution / human_capital_only,
+        atol=1e-10,
+        rtol=0.0,
+    ):
+        raise AssertionError(
+            "ratio_total_to_human_capital_only must equal total_education_contribution / human_capital_only."
+        )
+
+    return pd.DataFrame(
+        [
+            {"concept": "firm_productivity_education_channel", "value": firm_productivity_education_channel},
+            {"concept": "worker_human_capital_channel", "value": worker_human_capital_channel},
+            {"concept": "total_education_contribution", "value": total_education_contribution},
+            {"concept": "human_capital_only", "value": human_capital_only},
+            {
+                "concept": "added_contribution_from_firm_productivity",
+                "value": added_contribution_from_firm_productivity,
+            },
+            {"concept": "ratio_total_to_human_capital_only", "value": ratio_total_to_human_capital_only},
+        ]
+    )
+
+
+def write_item_c_outputs(education_contribution: pd.DataFrame, output_dir: Path) -> dict[str, Path]:
+    output_paths = {
+        "csv": output_dir / "p6_p4_item_c_education_contribution.csv",
+        "md": output_dir / "p6_p4_item_c_education_contribution.md",
+        "summary": output_dir / "p6_p4_item_c_summary.txt",
+    }
+
+    education_contribution.to_csv(output_paths["csv"], index=False)
+
+    markdown_lines = [
+        "| concept | value |",
+        "|---|---:|",
+    ]
+    for row in education_contribution.itertuples(index=False):
+        markdown_lines.append(f"| {row.concept} | {row.value:.12f} |")
+    output_paths["md"].write_text("\n".join(markdown_lines) + "\n", encoding="utf-8")
+
+    summary_lines = [
+        f"{row.concept}: {row.value:.12f}"
+        for row in education_contribution.itertuples(index=False)
+    ]
+    output_paths["summary"].write_text("\n".join(summary_lines) + "\n", encoding="utf-8")
+
+    return output_paths
+
+
 def make_scatter_plot(
     df: pd.DataFrame,
     x_col: str,
@@ -546,6 +639,8 @@ def build_run_summary(
     item_b_paths: list[Path],
     share_sum: float,
     max_abs_reconstruction_error: float,
+    education_contribution: pd.DataFrame,
+    item_c_paths: list[Path],
 ) -> str:
     output_paths = [
         output_dir / "p6_p4_item_a_country_level.csv",
@@ -580,6 +675,27 @@ def build_run_summary(
     lines.extend(f"- {path.relative_to(repo_root)}" for path in item_b_paths)
     lines.append(f"Variance-decomposition share sum: {share_sum:.12f}")
     lines.append(f"Max absolute reconstruction error: {max_abs_reconstruction_error:.3e}")
+    lines.append("Item (c) computed: yes.")
+
+    education_values = education_contribution.set_index("concept")["value"]
+    lines.append("Item (c) output paths:")
+    lines.extend(f"- {path.relative_to(repo_root)}" for path in item_c_paths)
+    lines.append(
+        "Total education contribution: "
+        f"{education_values['total_education_contribution']:.12f}"
+    )
+    lines.append(
+        "Human-capital-only contribution: "
+        f"{education_values['human_capital_only']:.12f}"
+    )
+    lines.append(
+        "Added firm-productivity contribution: "
+        f"{education_values['added_contribution_from_firm_productivity']:.12f}"
+    )
+    lines.append(
+        "Ratio total education contribution to human-capital-only contribution: "
+        f"{education_values['ratio_total_to_human_capital_only']:.12f}"
+    )
 
     unresolved = []
     unmatched_barro_path = output_dir / "p6_p4_unmatched_barro_lee.csv"
@@ -632,6 +748,8 @@ def run() -> None:
     final_df = add_model_terms(matched_df)
     final_df, max_abs_reconstruction_error = add_item_b_terms(final_df)
     decomposition_df, share_sum = compute_variance_decomposition(final_df)
+    education_contribution = compute_education_contribution(decomposition_df)
+    item_c_output_paths = write_item_c_outputs(education_contribution, output_dir)
 
     keep_columns = [
         "countrycode",
@@ -721,6 +839,8 @@ def run() -> None:
         raise FileNotFoundError("Expected figure outputs were not created.")
     if not item_b_csv_path.exists() or not item_b_md_path.exists():
         raise FileNotFoundError("Expected item (b) variance-decomposition outputs were not created.")
+    if not all(path.exists() for path in item_c_output_paths.values()):
+        raise FileNotFoundError("Expected item (c) education-contribution outputs were not created.")
 
     summary_text = build_run_summary(
         repo_root=repo_root,
@@ -734,6 +854,8 @@ def run() -> None:
         item_b_paths=[item_b_csv_path, item_b_md_path, item_b_summary_path],
         share_sum=share_sum,
         max_abs_reconstruction_error=max_abs_reconstruction_error,
+        education_contribution=education_contribution,
+        item_c_paths=list(item_c_output_paths.values()),
     )
     summary_path = output_dir / "p6_p4_item_a_summary.txt"
     summary_path.write_text(summary_text, encoding="utf-8")

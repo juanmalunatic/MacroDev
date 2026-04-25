@@ -1,0 +1,8 @@
+| concept | value |
+|---|---:|
+| firm_productivity_education_channel | 0.107048619307 |
+| worker_human_capital_channel | 0.191191084723 |
+| total_education_contribution | 0.298239704030 |
+| human_capital_only | 0.191191084723 |
+| added_contribution_from_firm_productivity | 0.107048619307 |
+| ratio_total_to_human_capital_only | 1.559903823247 |
