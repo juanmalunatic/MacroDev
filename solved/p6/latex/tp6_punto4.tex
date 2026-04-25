@@ -127,9 +127,26 @@ Por último, la versión sin productividad agregada de firmas se calcula omitien
 
 El ejercicio consiste en comparar el valor observado en PWT, $\ln(y_c/y_U)$, contra los valores explicados por el modelo con y sin el término de productividad agregada de firmas, dados por las ecuaciones \ref{eq_ycus_conA} y \ref{eq_ycus_sinA} respectivamente.
 
-Resultado: Poner las dos imagenes
+Como resultado, la Figura \ref{fig:p6_p4_item_a} compara el ingreso observado relativo a Estados Unidos contra el ingreso explicado por el modelo, con y sin el canal de productividad agregada de firmas.
 
-Concluir
+\begin{figure}[H]
+	\centering
+	\begin{minipage}{0.49\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{../code/output/unified/p6_p4_unified_item_a_with_A_relative.pdf}
+		\caption*{(a) Con productividad agregada de firmas}
+	\end{minipage}
+	\hfill
+	\begin{minipage}{0.49\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{../code/output/unified/p6_p4_unified_item_a_without_A_relative.pdf}
+		\caption*{(b) Sin productividad agregada de firmas}
+	\end{minipage}
+	\caption{Ingreso observado y explicado relativo a Estados Unidos.}
+	\label{fig:p6_p4_item_a}
+\end{figure}
+
+Visualmente, incluir el canal de productividad agregada de firmas mejora el ajuste del modelo: los puntos se acercan más a la línea de 45 grados. Esto sugiere que la composición educativa de los emprendedores agrega poder explicativo respecto de la versión que solo incluye capital físico y capital humano de trabajadores.
 
 \subsection{Inciso B}
 
@@ -185,44 +202,54 @@ De acuerdo a las slides de clase, se calcula la participación del componente $x
 	{\operatorname{Var}(\ell^y_c)} \label{eq_all_shares}
 \end{align}
 
-Resultado:
+Los resultados de la descomposición se muestran en la Tabla \ref{tab:p6_p4_var_decomp}. El residuo explica la mayor parte de la varianza del ingreso relativo. Entre los componentes observables del modelo, el capital humano de trabajadores explica la mayor fracción, seguido por la productividad agregada de firmas y luego el factor capital.
 
-\begin{align}
-s_A = 0.1070,\quad
-s_K = 0.0477,\quad
-s_h = 0.1912,\quad
-s_\varepsilon = 0.6541.
-\end{align}
+La educación (la suma de ambos canales) explica entonces cerca al 30\% de la varianza. De esta cantidad, aproximadamente $1/3$ se atribuye a la educación del empresario, mientras que $2/3$ al canal clásico de capital humano de los trabajadores. 
 
-La mayor parte de la varianza queda en el residuo. Entre los componentes observables del modelo, el capital humano de trabajadores explica la mayor fracción, seguido por la productividad agregada de firmas y luego el factor capital.
+\input{../code/output/unified/p6_p4_unified_item_b_variance_decomposition.tex}
 
 
 \subsection{Inciso C}
 
-El inciso (c) pide calcular la participación total de las diferencias de educación entre países. En el modelo, la educación aparece por dos canales: el capital humano de los trabajadores y la productividad agregada de firmas. Por lo tanto, la contribución total de educación se calcula como la suma de ambos componentes:
+El inciso (c) pide calcular la participación total de las diferencias de educación entre países. En el modelo con productividad agregada de firmas, la educación aparece por dos canales: el capital humano de los trabajadores y la productividad agregada de firmas. Por lo tanto, la contribución total de educación se calcula como la suma de ambos componentes:
 \begin{align}
-	s_{\text{educación}}
+	s_{\text{educación\_con}} \nonumber
 	&=
-	s_A + s_h \\
+	s_A + s_h \nonumber \\
 	&=
-	0.1070 + 0.1912 \\
+	0.1070 + 0.1912 \nonumber \\
 	&=
 	0.2982.
 \end{align}
 
-Esto implica que las diferencias de educación explican aproximadamente el $29.82\%$ de la varianza del ingreso relativo. Si se considera únicamente el canal estándar de capital humano de trabajadores, la participación es:
+Para comparar contra el modelo estándar sin productividad agregada de firmas, se puede reescribir $\ell_c^y$ incorporando a $A$ en el residuo como lo muestran las Ecuación \ref{eq_yellsina}. El nuevo residuo de la Ecuación \ref{eq_yellsina_a} absorbe el término de productividad agregada de firmas.
 \begin{align}
-	s_h = 0.1912.
+	\ell^y_c
+	&=
+	\ell^K_c
+	+
+	\ell^h_c
+	+
+	\varepsilon^{\text{sin } A}_c \label{eq_yellsina} \\
+	\varepsilon^{\text{sin } A}_c
+	&=
+	\ell^A_c
+	+
+	\varepsilon_c \label{eq_yellsina_a}
+\end{align}
+Entonces no hace falta hacer una nueva decomposición de varianza tabla para obtener la contribución del capital humano sin "canal empresario": la participación de $\ell^h_c$ en la varianza del ingreso observado sigue siendo la mostrada en la Ecuación \ref{eq_sincanem}. Lo que cambia al pasar del modelo con $A$ al modelo sin $A$ es la composición del residuo, no la covarianza entre capital humano e ingreso observado.
+\begin{align}
+	s_{\text{educación\_sin}}
+	=
+	s_h
+	=
+	\frac{\operatorname{Cov}(\ell^h_c,\ell^y_c)}
+	{\operatorname{Var}(\ell^y_c)}
+	=
+	0.1912 \label{eq_sincanem}
 \end{align}
 
-Por lo tanto, incorporar el canal de productividad emprendedora aumenta la contribución atribuida a educación en:
-\begin{align}
-	0.2982 - 0.1912 = 0.1070.
-\end{align}
 
-En términos relativos:
-\begin{align}
-	\frac{0.2982}{0.1912} \approx 1.56.
-\end{align}
+Como se vio anteriormente, las diferencias de educación explican aproximadamente el $29.82\%$ de la varianza del ingreso relativo cuando se incorporan ambos canales. Si se considera únicamente el canal estándar de capital humano de trabajadores, la participación es $19.12\%$. Por lo tanto, incorporar el canal de productividad emprendedora aumenta la contribución atribuida a educación en $0.2982 - 0.1912 = 0.1070$. En términos relativos: $0.2982/0.1912 \approx 1.56$.
 
-Es decir, al incluir el efecto de la educación sobre la productividad de las firmas, la contribución de la educación pasa de $19.12\%$ a $29.82\%$ de la varianza del ingreso. Esto equivale a una contribución aproximadamente $56\%$ mayor que la obtenida al mirar solamente el capital humano de los trabajadores.
+Al incluir el efecto de la educación sobre la productividad de las firmas, la contribución de la educación pasa de $19.12\%$ a $29.82\%$ de la varianza del ingreso. Esto equivale a una contribución aproximadamente $56\%$ mayor que la obtenida al mirar solamente el capital humano de los trabajadores.
