@@ -618,3 +618,375 @@ Codex should report only:
 Do not present unverified numerical results as final.
 
 Do not modify manual LaTeX unless explicitly instructed.
+
+# p6_DESIGN.md Addendum — Phase 5: Student-facing modeling script
+
+## How to apply this addendum
+
+Append this section to the end of:
+
+```text
+solved/p6/p6_DESIGN.md
+```
+
+Do not replace the whole file.
+
+Do not modify:
+
+```text
+solved/p6/code/p6_part3_p4_item_a.py
+solved/p6/code/p6_part3_p4_unified_data.py
+solved/p6/code/p6_part3_p4_unified_modeling.py
+solved/p6/latex/
+data/
+docs/
+```
+
+This phase is non-destructive. It creates a simpler student-facing modeling script that starts from the already-clean unified base data.
+
+---
+
+# Phase 5 — Student-facing modeling script
+
+## Goal
+
+Create a clean, simple, student-style version of the modeling code for PS6 Part III, Problem 4.
+
+The current `p6_part3_p4_unified_modeling.py` is robust and production-like. Keep it as the verified benchmark. The new script should be easier to read as coursework code: more linear, more declarative, fewer helpers, fewer defensive checks, and ordered like the report.
+
+The new script must still reproduce the same core numerical results.
+
+## New script
+
+Create:
+
+```text
+solved/p6/code/student/p6_p4_student_modeling.py
+```
+
+Create the folder if needed:
+
+```text
+solved/p6/code/student/
+```
+
+## Input
+
+The student script must load only:
+
+```text
+solved/p6/code/output/unified/p6_p4_unified_base_data.csv
+```
+
+It must not load raw PWT or raw Barro-Lee files.
+
+It must not redo country matching or data cleaning. That remains the job of:
+
+```text
+solved/p6/code/p6_part3_p4_unified_data.py
+```
+
+## Output folder
+
+Write outputs under:
+
+```text
+solved/p6/code/output/student/
+```
+
+Do not overwrite the frozen benchmark outputs or the unified pipeline outputs.
+
+## Style requirement
+
+Write the script like a strong student would write it for a problem set.
+
+Prefer:
+
+- one clear script;
+- a short constants block at the top;
+- a small number of simple helper functions only where they improve readability;
+- calculations in the same order as the report:
+  1. load clean base data;
+  2. define constants and education-productivity parameters;
+  3. compute `Z_i`;
+  4. compute `tilde_A`;
+  5. compute observed income, capital-output ratio, and human capital;
+  6. normalize relative to the United States;
+  7. compute model predictions with and without `tilde_A`;
+  8. make item (a) figures;
+  9. compute item (b) variance decomposition;
+  10. compute item (c) education contribution;
+  11. save simple outputs.
+
+Avoid:
+
+- excessive abstraction;
+- many tiny functions;
+- complex validation framework;
+- generalized infrastructure;
+- over-engineered table writers;
+- rewriting the robust unified pipeline;
+- touching manual LaTeX.
+
+Some checks are still useful, but keep them simple:
+
+- base data file exists;
+- USA is present;
+- key columns have no missing values;
+- key variables are positive;
+- education shares sum to one up to tolerance;
+- generated results match the benchmark up to tolerance.
+
+## Constants and formulas
+
+Use natural logs.
+
+```python
+YEAR = 2010
+US_CODE = "USA"
+GAMMA = 1 / 3
+CAPITAL_EXPONENT = GAMMA / (1 - GAMMA)
+BAR_R = 0.08
+TOL = 1e-10
+```
+
+Education groups:
+
+```python
+education_groups = ["no_schooling", "primary", "secondary", "tertiary"]
+
+schooling_years = {
+    "no_schooling": 0,
+    "primary": 6,
+    "secondary": 12,
+    "tertiary": 17,
+}
+
+z_log = {
+    "no_schooling": 0.28,
+    "primary": 0.60,
+    "secondary": 0.93,
+    "tertiary": 1.20,
+}
+```
+
+Compute:
+
+```python
+Z_i = exp(z_i)
+```
+
+Firm productivity:
+
+\[
+\tilde A_c =
+\left(
+\sum_i \theta_{i,c} Z_i^2
+\right)^{1/2}.
+\]
+
+Observed objects:
+
+\[
+y_c = \frac{\texttt{rgdpo}_c}{\texttt{emp}_c},
+\]
+
+\[
+\frac{K_c}{Y_c} = \frac{\texttt{cn}_c}{\texttt{rgdpo}_c},
+\]
+
+\[
+h_c = \texttt{hc}_c.
+\]
+
+US-relative terms:
+
+\[
+\ell^y_c = \ln(y_c) - \ln(y_U),
+\]
+
+\[
+\ell^A_c = \ln(\tilde A_c) - \ln(\tilde A_U),
+\]
+
+\[
+\ell^K_c =
+\frac{\gamma}{1-\gamma}
+\left[
+\ln(K_c/Y_c) - \ln(K_U/Y_U)
+\right],
+\]
+
+\[
+\ell^h_c = \ln(h_c) - \ln(h_U).
+\]
+
+Predictions:
+
+\[
+\widehat{\ell^y}_{c,con}
+=
+\ell^A_c + \ell^K_c + \ell^h_c,
+\]
+
+\[
+\widehat{\ell^y}_{c,sin}
+=
+\ell^K_c + \ell^h_c.
+\]
+
+Residual with firm-productivity channel:
+
+\[
+\varepsilon_c =
+\ell^y_c - \ell^A_c - \ell^K_c - \ell^h_c.
+\]
+
+Variance decomposition:
+
+\[
+s_x =
+\frac{\operatorname{Cov}(x_c,\ell^y_c)}
+{\operatorname{Var}(\ell^y_c)}.
+\]
+
+Education contribution:
+
+\[
+s_{education,con} = s_A + s_h,
+\]
+
+\[
+s_{education,sin} = s_h.
+\]
+
+## Required student outputs
+
+Create:
+
+```text
+solved/p6/code/output/student/p6_p4_student_country_level.csv
+solved/p6/code/output/student/p6_p4_student_item_a_with_A_relative.pdf
+solved/p6/code/output/student/p6_p4_student_item_a_without_A_relative.pdf
+solved/p6/code/output/student/p6_p4_student_item_b_variance_decomposition.csv
+solved/p6/code/output/student/p6_p4_student_item_b_variance_decomposition.md
+solved/p6/code/output/student/p6_p4_student_item_c_education_contribution.csv
+solved/p6/code/output/student/p6_p4_student_item_c_education_contribution.md
+solved/p6/code/output/student/p6_p4_student_summary.txt
+solved/p6/code/output/student/p6_p4_student_benchmark_check.csv
+solved/p6/code/output/student/p6_p4_student_benchmark_check.md
+```
+
+PDF figures should be in Spanish and use the same basic style as the unified report figures:
+
+- shared fixed axis limits across the two relative plots;
+- 45-degree line;
+- no dropped points;
+- Spanish labels and titles.
+
+Do not create absolute debug figures unless they are easy and clearly separated; they are not required for the student-facing script.
+
+## Benchmarks
+
+Compare the student script outputs against the accepted unified outputs:
+
+```text
+solved/p6/code/output/unified/p6_p4_unified_country_level.csv
+solved/p6/code/output/unified/p6_p4_unified_item_b_variance_decomposition.csv
+solved/p6/code/output/unified/p6_p4_unified_item_c_education_contribution.csv
+```
+
+Check at least these country-level columns:
+
+```text
+tilde_A
+y_observed
+K_over_Y
+h
+ln_y_rel_us
+ln_tilde_A_rel_us
+ln_K_over_Y_rel_us
+ln_h_rel_us
+ln_capital_factor_rel_us
+ln_yhat_with_A_rel_us
+ln_yhat_without_A_rel_us
+residual
+```
+
+Check item (b) table values and item (c) table values.
+
+Use tolerance:
+
+```python
+TOL = 1e-10
+```
+
+If a benchmark comparison fails, raise a clear error saying which column or table failed and the maximum absolute difference.
+
+## Expected script structure
+
+The code should be simple. A suggested structure is:
+
+```python
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# constants
+
+def find_repo_root() -> Path:
+    ...
+
+def save_markdown_table(df: pd.DataFrame, path: Path) -> None:
+    ...
+
+def make_scatter(...):
+    ...
+
+def main() -> None:
+    # paths
+    # load base data
+    # simple checks
+    # compute model variables
+    # item a figures
+    # item b decomposition
+    # item c education contribution
+    # benchmark checks
+    # summary
+
+if __name__ == "__main__":
+    main()
+```
+
+This should not become a second production pipeline. Keep the logic readable and in one main flow.
+
+## Command to run
+
+From the repository root:
+
+```bash
+py solved/p6/code/student/p6_p4_student_modeling.py
+```
+
+If needed locally:
+
+```powershell
+$env:PYTHONPATH='C:\AcademicRepos\MacroDevBase\.venv\Lib\site-packages'
+py solved/p6/code/student/p6_p4_student_modeling.py
+```
+
+## Expected Codex response
+
+After implementation and running the script, Codex should report only:
+
+1. files created or modified;
+2. command used to reproduce;
+3. whether the robust unified scripts and frozen benchmark script were left untouched;
+4. student output paths;
+5. benchmark checks passed;
+6. any unresolved issues.
+
+Do not modify manual LaTeX.
+Do not present unverified numerical results as final.
