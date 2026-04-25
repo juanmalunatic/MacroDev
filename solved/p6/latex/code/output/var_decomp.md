@@ -1,0 +1,7 @@
+| componente | participacion | covarianza_con_ln_y | varianza_ln_y |
+|---|---:|---:|---:|
+| Productividad de firmas | 0.107 | 0.136 | 1.268 |
+| Factor capital | 0.048 | 0.060 | 1.268 |
+| Capital humano trabajadores | 0.191 | 0.242 | 1.268 |
+| Residuo | 0.654 | 0.830 | 1.268 |
+| Total | 1.000 | 1.268 | 1.268 |

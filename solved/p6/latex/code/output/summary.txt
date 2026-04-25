@@ -1,0 +1,12 @@
+Input CSV: p6_p4_unified_base_data.csv
+Output folder: output/
+Country-level CSV: output/country_level.csv
+Item (a) with A PDF: output/fig_with_A.pdf
+Item (a) without A PDF: output/fig_without_A.pdf
+Item (b) CSV: output/var_decomp.csv
+Item (b) MD: output/var_decomp.md
+Item (b) TEX: output/var_decomp.tex
+Item (c) CSV: output/education_contribution.csv
+Item (c) MD: output/education_contribution.md
+Sample size: 139
+Item (b) share sum: 1.000000000000
