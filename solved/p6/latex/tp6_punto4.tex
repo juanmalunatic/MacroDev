@@ -4,7 +4,7 @@
 
 Este ejercicio busca medir cómo la educación explica diferencias de ingreso entre países. Se hace primero el análisis a nivel país ignorando el subíndice $c$ para recuperarlo más adelante cuando sea relevante.
 
-Dentro de cada país la población se divide en cuatro grupos indexados por $i \in \{0,1,2,3\}$. La variable $s_i$ representa años de escolaridad y $z_i$ es la log-productividad promedio en estado estacionario para la firma creada por un emprendedor de tipo $i$. Se asume que $z_i$ es igual entre países para un mismo $i$\footnote{Es decir, una firma creada por un emprendedor con $i=2$ es igual de productiva en Alemania que en Angola.}. En cambio, el vector de $\theta$, es distinto entre países y se calcula numéricamente más adelante. Los datos de cada grupo se muestran en la Tabla \ref{tab:empren}, donde $\theta_i$ toma valores ilustrativos.
+Dentro de cada país la población se divide en cuatro grupos indexados por $i \in \{0,1,2,3\}$. La variable $s_i$ representa años de escolaridad y $z_i$ es la log-productividad promedio en estado estacionario para la firma creada por un emprendedor de tipo $i$. Se asume que $z_i$ es igual entre países para un mismo $i$\footnote{Es decir, una firma creada por un emprendedor con $i=2$ es igual de productiva en Alemania que en Angola.}. En cambio, el vector de $\theta$, es distinto entre países y se calcula numéricamente más adelante. Los datos de cada grupo se muestran en la Tabla \ref{tab:empren}, donde $\theta_i$ toma valores ilustrativos expresados como fracciones.
 \begin{table}[H]
 	\centering
 	\begin{tabular}{llrrr}
@@ -221,7 +221,7 @@ El inciso (c) pide calcular la participación total de las diferencias de educac
 	0.2982.
 \end{align}
 
-Para comparar contra el modelo estándar sin productividad agregada de firmas, se puede reescribir $\ell_c^y$ incorporando a $A$ en el residuo como lo muestran las Ecuación \ref{eq_yellsina}. El nuevo residuo de la Ecuación \ref{eq_yellsina_a} absorbe el término de productividad agregada de firmas.
+Para comparar contra el modelo estándar sin productividad agregada de firmas, se puede reescribir $\ell_c^y$ incorporando a $A$ en el residuo como lo muestra la Ecuación \ref{eq_yellsina}. El nuevo residuo de la Ecuación \ref{eq_yellsina_a} absorbe el término de productividad agregada de firmas.
 \begin{align}
 	\ell^y_c
 	&=
@@ -236,7 +236,7 @@ Para comparar contra el modelo estándar sin productividad agregada de firmas, s
 	+
 	\varepsilon_c \label{eq_yellsina_a}
 \end{align}
-Entonces no hace falta hacer una nueva tabla de decomposición de varianza para obtener la contribución del capital humano sin "canal empresario": la participación de $\ell^h_c$ en la varianza del ingreso observado sigue siendo la mostrada en la Ecuación \ref{eq_sincanem}. Lo que cambia al pasar del modelo con $A$ al modelo sin $A$ es la composición del residuo, no la covarianza entre capital humano e ingreso observado.
+Entonces no hace falta hacer una nueva tabla de descomposición de varianza para obtener la contribución del capital humano sin "canal empresario": la participación de $\ell^h_c$ en la varianza del ingreso observado sigue siendo la mostrada en la Ecuación \ref{eq_sincanem}. Lo que cambia al pasar del modelo con $A$ al modelo sin $A$ es la composición del residuo, no la covarianza entre capital humano e ingreso observado.
 \begin{align}
 	s_{\text{educación\_sin}}
 	=
