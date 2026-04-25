@@ -56,6 +56,10 @@ def find_repo_root() -> Path:
     raise FileNotFoundError("Could not infer the repository root from __file__.")
 
 
+def relpath(path: Path, repo_root: Path) -> str:
+    return path.relative_to(repo_root).as_posix()
+
+
 def ensure_input_file_exists(path: Path) -> None:
     if not path.exists():
         raise FileNotFoundError(f"Required input file not found: {path}")
@@ -423,11 +427,11 @@ def run() -> None:
         f"Barro-Lee countries loaded: {bl_df['country'].nunique()}",
         f"Unified merged sample size: {len(unified_df)}",
         f"United States present: {US_CODE in set(unified_df['countrycode'])}",
-        f"Unified base data: {unified_base_path}",
-        f"Unmatched Barro-Lee diagnostics: {output_dir / 'p6_p4_unmatched_barro_lee.csv'}",
-        f"Unmatched PWT diagnostics: {output_dir / 'p6_p4_unmatched_pwt.csv'}",
-        f"Unified data benchmark check CSV: {output_dir / 'p6_p4_unified_data_benchmark_check.csv'}",
-        f"Unified data benchmark check MD: {output_dir / 'p6_p4_unified_data_benchmark_check.md'}",
+        f"Unified base data: {relpath(unified_base_path, repo_root)}",
+        f"Unmatched Barro-Lee diagnostics: {relpath(output_dir / 'p6_p4_unmatched_barro_lee.csv', repo_root)}",
+        f"Unmatched PWT diagnostics: {relpath(output_dir / 'p6_p4_unmatched_pwt.csv', repo_root)}",
+        f"Unified data benchmark check CSV: {relpath(output_dir / 'p6_p4_unified_data_benchmark_check.csv', repo_root)}",
+        f"Unified data benchmark check MD: {relpath(output_dir / 'p6_p4_unified_data_benchmark_check.md', repo_root)}",
         f"Maximum benchmark difference: {benchmark_check_df['max_abs_diff'].max():.3e}",
         f"Benchmark checks passed: {benchmark_check_df['passed'].all()}",
         f"Remaining unmatched Barro-Lee countries: {len(unmatched_barro)}",

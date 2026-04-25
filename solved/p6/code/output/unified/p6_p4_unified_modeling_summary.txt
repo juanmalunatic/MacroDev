@@ -1,20 +1,20 @@
-Unified base data input: C:\AcademicRepos\MacroDevBase\solved\p6\code\output\unified\p6_p4_unified_base_data.csv
-Unified modeling output: C:\AcademicRepos\MacroDevBase\solved\p6\code\output\unified\p6_p4_unified_country_level.csv
+Unified base data input: solved/p6/code/output/unified/p6_p4_unified_base_data.csv
+Unified modeling output: solved/p6/code/output/unified/p6_p4_unified_country_level.csv
 Unified modeling sample size: 139
 Item (b) share sum: 1.000000000000
 Item (b) max absolute reconstruction error: 8.882e-16
-Main relative PDF with A: C:\AcademicRepos\MacroDevBase\solved\p6\code\output\unified\p6_p4_unified_item_a_with_A_relative.pdf
-Main relative PDF without A: C:\AcademicRepos\MacroDevBase\solved\p6\code\output\unified\p6_p4_unified_item_a_without_A_relative.pdf
-Absolute debug PDF with A: C:\AcademicRepos\MacroDevBase\solved\p6\code\output\unified\p6_p4_unified_item_a_with_A_absolute_debug.pdf
-Absolute debug PDF without A: C:\AcademicRepos\MacroDevBase\solved\p6\code\output\unified\p6_p4_unified_item_a_without_A_absolute_debug.pdf
-Unified item (b) CSV: C:\AcademicRepos\MacroDevBase\solved\p6\code\output\unified\p6_p4_unified_item_b_variance_decomposition.csv
-Unified item (b) MD: C:\AcademicRepos\MacroDevBase\solved\p6\code\output\unified\p6_p4_unified_item_b_variance_decomposition.md
-Unified item (b) TEX: C:\AcademicRepos\MacroDevBase\solved\p6\code\output\unified\p6_p4_unified_item_b_variance_decomposition.tex
-Unified item (c) CSV: C:\AcademicRepos\MacroDevBase\solved\p6\code\output\unified\p6_p4_unified_item_c_education_contribution.csv
-Unified item (c) MD: C:\AcademicRepos\MacroDevBase\solved\p6\code\output\unified\p6_p4_unified_item_c_education_contribution.md
-Unified item (c) TEX: C:\AcademicRepos\MacroDevBase\solved\p6\code\output\unified\p6_p4_unified_item_c_education_contribution.tex
-Unified modeling benchmark check CSV: C:\AcademicRepos\MacroDevBase\solved\p6\code\output\unified\p6_p4_unified_modeling_benchmark_check.csv
-Unified modeling benchmark check MD: C:\AcademicRepos\MacroDevBase\solved\p6\code\output\unified\p6_p4_unified_modeling_benchmark_check.md
+Main relative PDF with A: solved/p6/code/output/unified/p6_p4_unified_item_a_with_A_relative.pdf
+Main relative PDF without A: solved/p6/code/output/unified/p6_p4_unified_item_a_without_A_relative.pdf
+Absolute debug PDF with A: solved/p6/code/output/unified/p6_p4_unified_item_a_with_A_absolute_debug.pdf
+Absolute debug PDF without A: solved/p6/code/output/unified/p6_p4_unified_item_a_without_A_absolute_debug.pdf
+Unified item (b) CSV: solved/p6/code/output/unified/p6_p4_unified_item_b_variance_decomposition.csv
+Unified item (b) MD: solved/p6/code/output/unified/p6_p4_unified_item_b_variance_decomposition.md
+Unified item (b) TEX: solved/p6/code/output/unified/p6_p4_unified_item_b_variance_decomposition.tex
+Unified item (c) CSV: solved/p6/code/output/unified/p6_p4_unified_item_c_education_contribution.csv
+Unified item (c) MD: solved/p6/code/output/unified/p6_p4_unified_item_c_education_contribution.md
+Unified item (c) TEX: solved/p6/code/output/unified/p6_p4_unified_item_c_education_contribution.tex
+Unified modeling benchmark check CSV: solved/p6/code/output/unified/p6_p4_unified_modeling_benchmark_check.csv
+Unified modeling benchmark check MD: solved/p6/code/output/unified/p6_p4_unified_modeling_benchmark_check.md
 Maximum benchmark difference: 2.910e-11
 Benchmark checks passed: True
 Remaining unmatched Barro-Lee countries from unified data stage: 6

@@ -3,11 +3,11 @@ PWT countries loaded: 183
 Barro-Lee countries loaded: 146
 Unified merged sample size: 139
 United States present: True
-Unified base data: C:\AcademicRepos\MacroDevBase\solved\p6\code\output\unified\p6_p4_unified_base_data.csv
-Unmatched Barro-Lee diagnostics: C:\AcademicRepos\MacroDevBase\solved\p6\code\output\unified\p6_p4_unmatched_barro_lee.csv
-Unmatched PWT diagnostics: C:\AcademicRepos\MacroDevBase\solved\p6\code\output\unified\p6_p4_unmatched_pwt.csv
-Unified data benchmark check CSV: C:\AcademicRepos\MacroDevBase\solved\p6\code\output\unified\p6_p4_unified_data_benchmark_check.csv
-Unified data benchmark check MD: C:\AcademicRepos\MacroDevBase\solved\p6\code\output\unified\p6_p4_unified_data_benchmark_check.md
+Unified base data: solved/p6/code/output/unified/p6_p4_unified_base_data.csv
+Unmatched Barro-Lee diagnostics: solved/p6/code/output/unified/p6_p4_unmatched_barro_lee.csv
+Unmatched PWT diagnostics: solved/p6/code/output/unified/p6_p4_unmatched_pwt.csv
+Unified data benchmark check CSV: solved/p6/code/output/unified/p6_p4_unified_data_benchmark_check.csv
+Unified data benchmark check MD: solved/p6/code/output/unified/p6_p4_unified_data_benchmark_check.md
 Maximum benchmark difference: 2.910e-11
 Benchmark checks passed: True
 Remaining unmatched Barro-Lee countries: 6

@@ -81,6 +81,10 @@ def find_repo_root() -> Path:
     raise FileNotFoundError("Could not infer the repository root from __file__.")
 
 
+def relpath(path: Path, repo_root: Path) -> str:
+    return path.relative_to(repo_root).as_posix()
+
+
 def ensure_input_file_exists(path: Path, help_command: str | None = None) -> None:
     if path.exists():
         return
@@ -717,23 +721,23 @@ def run() -> None:
     unmatched_pwt_count = len(pd.read_csv(unmatched_pwt_path)) if unmatched_pwt_path.exists() else np.nan
 
     summary_lines = [
-        f"Unified base data input: {unified_base_path}",
-        f"Unified modeling output: {unified_country_level_path}",
+        f"Unified base data input: {relpath(unified_base_path, repo_root)}",
+        f"Unified modeling output: {relpath(unified_country_level_path, repo_root)}",
         f"Unified modeling sample size: {len(country_level_df)}",
         f"Item (b) share sum: {share_sum:.12f}",
         f"Item (b) max absolute reconstruction error: {max_abs_reconstruction_error:.3e}",
-        f"Main relative PDF with A: {main_with_a_pdf}",
-        f"Main relative PDF without A: {main_without_a_pdf}",
-        f"Absolute debug PDF with A: {debug_with_a_pdf}",
-        f"Absolute debug PDF without A: {debug_without_a_pdf}",
-        f"Unified item (b) CSV: {variance_output_paths['csv']}",
-        f"Unified item (b) MD: {variance_output_paths['md']}",
-        f"Unified item (b) TEX: {variance_output_paths['tex']}",
-        f"Unified item (c) CSV: {education_output_paths['csv']}",
-        f"Unified item (c) MD: {education_output_paths['md']}",
-        f"Unified item (c) TEX: {education_output_paths['tex']}",
-        f"Unified modeling benchmark check CSV: {output_dir / 'p6_p4_unified_modeling_benchmark_check.csv'}",
-        f"Unified modeling benchmark check MD: {output_dir / 'p6_p4_unified_modeling_benchmark_check.md'}",
+        f"Main relative PDF with A: {relpath(main_with_a_pdf, repo_root)}",
+        f"Main relative PDF without A: {relpath(main_without_a_pdf, repo_root)}",
+        f"Absolute debug PDF with A: {relpath(debug_with_a_pdf, repo_root)}",
+        f"Absolute debug PDF without A: {relpath(debug_without_a_pdf, repo_root)}",
+        f"Unified item (b) CSV: {relpath(variance_output_paths['csv'], repo_root)}",
+        f"Unified item (b) MD: {relpath(variance_output_paths['md'], repo_root)}",
+        f"Unified item (b) TEX: {relpath(variance_output_paths['tex'], repo_root)}",
+        f"Unified item (c) CSV: {relpath(education_output_paths['csv'], repo_root)}",
+        f"Unified item (c) MD: {relpath(education_output_paths['md'], repo_root)}",
+        f"Unified item (c) TEX: {relpath(education_output_paths['tex'], repo_root)}",
+        f"Unified modeling benchmark check CSV: {relpath(output_dir / 'p6_p4_unified_modeling_benchmark_check.csv', repo_root)}",
+        f"Unified modeling benchmark check MD: {relpath(output_dir / 'p6_p4_unified_modeling_benchmark_check.md', repo_root)}",
         f"Maximum benchmark difference: {benchmark_check_df['max_abs_diff'].max():.3e}",
         f"Benchmark checks passed: {benchmark_check_df['passed'].all()}",
         f"Remaining unmatched Barro-Lee countries from unified data stage: {unmatched_barro_count}",
