@@ -136,6 +136,11 @@ def validate_reference_values() -> None:
         _assert_close(schooling_h, expected_h_levels[group], f"h_{group}", atol=0.03)
 
 
+def ensure_input_file_exists(path: Path) -> None:
+    if not path.exists():
+        raise FileNotFoundError(f"Required input file not found: {path}")
+
+
 def load_pwt(pwt_path: Path, year: int) -> pd.DataFrame:
     pwt_df = pd.read_excel(pwt_path, sheet_name="Data")
 
@@ -486,6 +491,9 @@ def run() -> None:
     barro_path = repo_root / "data" / "Barro_Lee.xls"
     output_dir = repo_root / "solved" / "p6" / "code" / "output"
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    ensure_input_file_exists(pwt_path)
+    ensure_input_file_exists(barro_path)
 
     pwt_df = load_pwt(pwt_path, YEAR)
     bl_df = load_barro_lee(barro_path, YEAR)
