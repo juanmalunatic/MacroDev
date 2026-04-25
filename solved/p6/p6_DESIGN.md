@@ -652,22 +652,32 @@ This phase is non-destructive. It creates a simpler student-facing modeling scri
 
 Create a clean, simple, student-style version of the modeling code for PS6 Part III, Problem 4.
 
+The student-facing script should look like a self-contained coursework script, not like part of a larger repo pipeline.
+
 The current `p6_part3_p4_unified_modeling.py` is robust and production-like. Keep it as the verified benchmark. The new script should be easier to read as coursework code: more linear, more declarative, fewer helpers, fewer defensive checks, and ordered like the report.
 
 The new script must still reproduce the same core numerical results.
 
-## New script
+## Deliverable folder
 
-Create:
+The student deliverable folder is:
+
+```text
+solved/p6/code/student/
+```
+
+## Main student script
+
+The main student script is:
 
 ```text
 solved/p6/code/student/p6_p4_student_modeling.py
 ```
 
-Create the folder if needed:
+The clean input CSV must be copied into the same folder as the script:
 
 ```text
-solved/p6/code/student/
+solved/p6/code/student/p6_p4_unified_base_data.csv
 ```
 
 ## Input
@@ -675,26 +685,22 @@ solved/p6/code/student/
 The student script must load only:
 
 ```text
-solved/p6/code/output/unified/p6_p4_unified_base_data.csv
+SCRIPT_DIR / "p6_p4_unified_base_data.csv"
 ```
 
 It must not load raw PWT or raw Barro-Lee files.
 
-It must not redo country matching or data cleaning. That remains the job of:
-
-```text
-solved/p6/code/p6_part3_p4_unified_data.py
-```
+It must not redo country matching or data cleaning.
 
 ## Output folder
 
-Write outputs under:
+The student script must write outputs only under:
 
 ```text
-solved/p6/code/output/student/
+SCRIPT_DIR / "output/"
 ```
 
-Do not overwrite the frozen benchmark outputs or the unified pipeline outputs.
+It should not write into `solved/p6/code/output/unified/` or any other repo-level pipeline output folder.
 
 ## Style requirement
 
@@ -725,7 +731,11 @@ Avoid:
 - complex validation framework;
 - generalized infrastructure;
 - over-engineered table writers;
-- rewriting the robust unified pipeline;
+- `find_repo_root()`;
+- repo-root discovery;
+- paths pointing to `solved/p6/code/output/unified/`;
+- benchmark comparisons inside the main script;
+- references to the robust unified pipeline in the main execution flow;
 - touching manual LaTeX.
 
 Some checks are still useful, but keep them simple:
@@ -735,7 +745,7 @@ Some checks are still useful, but keep them simple:
 - key columns have no missing values;
 - key variables are positive;
 - education shares sum to one up to tolerance;
-- generated results match the benchmark up to tolerance.
+- required output files are created.
 
 ## Constants and formulas
 
@@ -865,16 +875,14 @@ s_{education,sin} = s_h.
 Create:
 
 ```text
-solved/p6/code/output/student/p6_p4_student_country_level.csv
-solved/p6/code/output/student/p6_p4_student_item_a_with_A_relative.pdf
-solved/p6/code/output/student/p6_p4_student_item_a_without_A_relative.pdf
-solved/p6/code/output/student/p6_p4_student_item_b_variance_decomposition.csv
-solved/p6/code/output/student/p6_p4_student_item_b_variance_decomposition.md
-solved/p6/code/output/student/p6_p4_student_item_c_education_contribution.csv
-solved/p6/code/output/student/p6_p4_student_item_c_education_contribution.md
-solved/p6/code/output/student/p6_p4_student_summary.txt
-solved/p6/code/output/student/p6_p4_student_benchmark_check.csv
-solved/p6/code/output/student/p6_p4_student_benchmark_check.md
+solved/p6/code/student/output/p6_p4_student_country_level.csv
+solved/p6/code/student/output/p6_p4_student_item_a_with_A_relative.pdf
+solved/p6/code/student/output/p6_p4_student_item_a_without_A_relative.pdf
+solved/p6/code/student/output/p6_p4_student_item_b_variance_decomposition.csv
+solved/p6/code/student/output/p6_p4_student_item_b_variance_decomposition.md
+solved/p6/code/student/output/p6_p4_student_item_c_education_contribution.csv
+solved/p6/code/student/output/p6_p4_student_item_c_education_contribution.md
+solved/p6/code/student/output/p6_p4_student_summary.txt
 ```
 
 PDF figures should be in Spanish and use the same basic style as the unified report figures:
@@ -882,13 +890,18 @@ PDF figures should be in Spanish and use the same basic style as the unified rep
 - shared fixed axis limits across the two relative plots;
 - 45-degree line;
 - no dropped points;
-- Spanish labels and titles.
+- Spanish labels and titles;
+- country-code labels for this small selected set only: `USA`, `ARG`, `AUS`, `CHN`, `IND`, `DEU`, `BRA`, `MEX`.
 
 Do not create absolute debug figures unless they are easy and clearly separated; they are not required for the student-facing script.
 
-## Benchmarks
+## Development-only benchmark checks
 
-Compare the student script outputs against the accepted unified outputs:
+Benchmark comparison against the accepted unified outputs is allowed only in a separate development/check script, not inside the student-facing script.
+
+If such a check script exists, place it outside the main student script and make clear that it is not part of the deliverable.
+
+The accepted unified outputs to compare against are:
 
 ```text
 solved/p6/code/output/unified/p6_p4_unified_country_level.csv
@@ -921,7 +934,7 @@ Use tolerance:
 TOL = 1e-10
 ```
 
-If a benchmark comparison fails, raise a clear error saying which column or table failed and the maximum absolute difference.
+If a separate benchmark-check script is used, it should raise a clear error saying which column or table failed and the maximum absolute difference.
 
 ## Expected script structure
 
@@ -935,9 +948,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # constants
-
-def find_repo_root() -> Path:
-    ...
+SCRIPT_DIR = Path(__file__).resolve().parent
 
 def save_markdown_table(df: pd.DataFrame, path: Path) -> None:
     ...
@@ -946,14 +957,13 @@ def make_scatter(...):
     ...
 
 def main() -> None:
-    # paths
+    # local paths relative to SCRIPT_DIR
     # load base data
     # simple checks
     # compute model variables
     # item a figures
     # item b decomposition
     # item c education contribution
-    # benchmark checks
     # summary
 
 if __name__ == "__main__":
