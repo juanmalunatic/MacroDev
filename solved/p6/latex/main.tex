@@ -13,6 +13,7 @@
 \usepackage[symbol]{footmisc}
 \usepackage{float} 
 \usepackage{caption}
+\usepackage{cancel}
 
 % preamble
 \usepackage{siunitx}
@@ -22,7 +23,7 @@
 }
 
 \usepackage[left=2.3cm, right=2.3cm, top=2.5cm, bottom=2.5cm]{geometry}
-\let\CheckCommand\providecommand \usepackage{microtype}
+\let\CheckCommand\providecommand \usepackage[protrusion=true,expansion=false]{microtype}
 \usepackage{amsfonts, amsmath, amssymb}
 \usepackage{mathtools}  % aboxed
 \renewcommand{\arraystretch}{1.2}
@@ -75,9 +76,10 @@
 	\clearpage
 	
 	\input{tp6_punto4}
-	\clearpage
-	\input{tp7_punto1}
-	\clearpage
-	\input{tp7_punto2}
+	
+	%\clearpage
+	%\input{tp7_punto1}
+	%\clearpage
+	%\input{tp7_punto2}
 	
 \end{document}

@@ -1,3 +1,129 @@
 \section{PS6, parte 3, punto 4 de coding}
 
-Hola amigos esto es un test.
+\subsection{Análisis teórico}
+
+Este ejercicio busca medir cómo la educación explica diferencias de ingreso entre países. Se hace primero el análisis a nivel país ignorando el subíndice $c$ para recuperarlo más adelante cuando sea relevante.
+
+Dentro de cada país la población se divide en cuatro grupos indexados por $i \in \{0,1,2,3\}$. La variable $s_i$ representa años de escolaridad y $z_i$ es la log-productividad promedio en estado estacionario para la firma creada por un emprendedor de tipo $i$. Se asume que $z_i$ es igual entre países para un mismo $i$\footnote{Es decir, una firma creada por un emprendedor con $i=2$ es igual de productiva en Alemania que en Angola.}. En cambio, el vector de $\theta$, es distinto entre países y se calcula numéricamente más adelante. Los datos de cada grupo se muestran en la Tabla \ref{tab:empren}, donde $\theta_i$ toma valores ilustrativos.
+\begin{table}[H]
+	\centering
+	\begin{tabular}{llrrr}
+		\toprule
+		$i$ & Grupo & \% de pob. & $s_i$ & $z_i$ \\
+		\midrule
+		0 & Sin escolaridad & $\theta_0 = 0.1$ & 0  & $0.28$ \\
+		1 & Primaria        & $\theta_1 = 0.2 $ & 6  & $0.60$ \\
+		2 & Secundaria      & $\theta_2 = 0.5$ & 12 & $0.93$ \\
+		3 & Superior        & $\theta_3 = 0.2$ & 17 & $1.20$ \\
+		\bottomrule
+	\end{tabular}
+	
+	\caption{Tipos de emprendedores según nivel educativo, años de escolaridad y productividad.}
+	\label{tab:empren}
+\end{table}
+
+En el modelo considerado, la escolaridad afecta el producto por dos canales que dependen de la distribución educativa $\theta_c$. Como los niveles $s_i$ y las productividades $Z_i$ están fijos por grupo educativo, las diferencias entre países no provienen de cambios en esos parámetros, sino de cuánta masa de la población cae en cada ``bucket'' educativo. En otras palabras, el objeto que varía entre países es el vector $\theta_c$.
+\begin{align}
+	y_i = Z_i K_i^\gamma H_i^{1-\gamma} \label{eq_y} \\
+	A \propto \left(\sum_i \theta_i Z_i^2 \right)^{1/2} \label{eq_A}
+\end{align}
+
+El canal "educación del emprendedor" se puede construir intuitivamente desde la Ecuación \ref{eq_y}. La productividad de una firma del grupo $i$ depende de $Z_i$ y las estimaciones de Queiró asignan valores crecientes de $Z_i$ a grupos de mayor escolaridad\footnote{
+	$s_i > s_j \implies Z_i > Z_j$.
+}. En este ejercicio, la grilla $Z_i$ está fija y lo que varía entre economías es la distribución $\theta_i$. Como el agregador CES es creciente en cada variedad $y_i$, y la agregación del modelo se resume en la Ecuación \ref{eq_A}, $Y$ es más grande en economías ``más educadas''\footnote{que tienen más masa relativa en segmentos de mayor escolaridad}. La Ecuación \ref{eq_A} muestra de forma explícita cómo la productividad crece cuando hay una reasignación de masa desde grupos bajos hacia grupos altos dada una grilla $Z_i$ fija.
+
+El canal "educación del trabajador" opera a través del capital humano agregado $H$. De acuerdo a las slides de competencia monopolística, el producto agregado $Y = F(K, H)$ es creciente en $H$\footnote{Con producto marginal decreciente en $H$ dado $K$.}. La consigna propone plantear el ejercicio con respecto a $\bar{s}$ con la Ecuación \ref{eq_H}. Conceptualmente, una economía "más educada" tendrá mayor escolaridad promedio $\bar{s}$, lo que aumenta el capital humano promedio $h$ y por lo tanto $H$, dado $N$, $\bar{r}$ y una grilla $s_i$ fija.
+\begin{align}
+	H &= N \; h = N \; e^{\bar{r} \bar{s}} \label{eq_H} \\ 
+	\bar{s} &= \sum_i { \theta_i s_i } \label{eq_sbar}
+\end{align}
+
+La Ecuación \ref{eq_sbar} se usa solo como interpretación conceptual; en la implementación empírica no se reconstruye $\bar{s}$ desde Barro--Lee, sino que se usa directamente el índice $\texttt{hc}$ de PWT.
+
+\subsection{Correspondencia con series de datos}
+
+Para implementar el ejercicio se combinan datos de PWT y Barro--Lee. Siguiendo las consignas previas de contabilidad del desarrollo, se hace la correspondencia entre series y variables:
+\begin{align*}
+	y_c &= \frac{Y_c}{N_c} = \frac{\texttt{rgdpo}_c}{\texttt{emp}_c} &
+	\frac{K_c}{Y_c} &= \frac{\texttt{cn}_c}{\texttt{rgdpo}_c} &
+	h_c &= \texttt{hc}_c
+\end{align*}
+
+El capital humano de los trabajadores se toma del índice de capital humano de PWT, $\texttt{hc}_c$. Este índice está en niveles y corresponde a $h_c$, no a $\bar r \bar s_c$. Por lo tanto, como la ecuación de contabilidad está escrita en logs, el término de capital humano que entra en la ecuación es $\ln h_c = \ln(\texttt{hc}_c) = \bar{r} \bar{s}_c$.
+
+La productividad agregada de firmas de la Ecuación \ref{eq_A} se construye con los datos de logro educativo de Barro--Lee. Para cada país se agrupan las categorías educativas en cuatro shares. Siguiendo la consigna, $\theta_{0,c}$ es la fracción de la población sin escolaridad. Para los demás grupos, las columnas \texttt{Total} de Primary / Secondary / Tertiary en Barro--Lee ya incluyen tanto a quienes completaron como a quienes no completaron ese nivel educativo. Entonces, para $i \in \{1,2,3\}$, se mapea $\theta_{i,c}$ directamente a la columna \texttt{Total} correspondiente, dividiendo los porcentajes por 100 y renormalizando los cuatro shares para que sumen uno.
+
+\subsection{Inciso A}
+
+La Ecuación \ref{eq_A} implica lo que se muestra en la Ecuación \ref{eq_AA}: La log-productividad de cada país depende de la grilla de $Z_i$, el vector $\theta_c$ y una constante $C$ común a todos los países. Por comodidad, se define $\tilde{A}_c$:
+\begin{align}
+	A_c \propto \left(\sum_i \theta_{i,c} Z_i^2 \right)^{1/2}
+	\implies 
+	A_c &= C \underbrace{\left(\sum_i \theta_{i,c} Z_i^2 \right)^{1/2}}_{\equiv \tilde{A}_c} \\
+	A_c &= C \tilde{A}_c
+	\label{eq_AA} \\
+	\ln( A_c ) &= \ln( C ) + \ln(\tilde{A}_c) \label{eq_lnac}
+\end{align}
+
+Dada la forma de la Ecuación \ref{eq_lnYN} en la consigna, se realiza el análisis con respecto al logaritmo del ingreso por trabajador (en lugar de hacerlo per cápita). Reemplazando el resultado de la Ecuación \ref{eq_lnac}, se obtiene:
+\begin{align}
+	\ln\left(\frac{Y_c}{N_c}\right) &= 
+		  \ln(A_c) 
+		+ \frac{\gamma}{1-\gamma} \ln\left(\frac{K_c}{Y_c}\right) 
+		+ \bar{r} \; \bar{s}_c
+		\label{eq_lnYN} \\
+	\implies
+	\ln\left(\frac{Y_c}{N_c}\right) &= 
+	\underbrace{\ln( C ) + \ln(\tilde{A}_c) }_{\ln(A_c)}
+	+ \frac{\gamma}{1-\gamma} \ln\left(\frac{K_c}{Y_c}\right) 
+	+ \ln(h_c)
+\end{align}
+
+Se elige calcular el ingreso por trabajador relativo a Estados Unidos para eliminar la constante, como lo muestra la Ecuación \ref{eq_can}. La expresión final del ingreso relativo por trabajador está dada entonces por la Ecuación \ref{eq_ycus_conA}.
+\begin{align}
+	\ln\left(\frac{Y_c}{N_c}\right)
+	- \ln\left(\frac{Y_U}{N_U}\right)
+	= 
+	\cancel{\ln(C)} - \cancel{\ln (C)} &+
+	\ln( \tilde{A}_c )
+	-
+	\ln( \tilde{A}_U )
+	+ \frac{\gamma}{1-\gamma} \left[ 
+		\ln\left(\frac{K_c}{Y_c}\right) 
+		- \ln\left(\frac{K_U}{Y_U}\right) 
+		\right]
+	+ \ln(h_c) - \ln(h_U)
+	\label{eq_can}	\\
+	%
+	\implies
+	\Aboxed{
+		\left( \widehat{  \ln\frac{y_c}{y_U} } \right)_{\text{con}}
+		&=
+		\ln\frac{\tilde{A}_c}{\tilde{A}_U}
+		+
+		\frac{\gamma}{1-\gamma}
+		\ln\left(
+		\frac{K_c/Y_c}{K_U/Y_U}
+		\right)
+		+
+		\ln\frac{h_c}{h_U}
+	}\label{eq_ycus_conA}
+\end{align}
+
+Por último, la versión sin productividad agregada de firmas se calcula omitiendo el primer término, lo que resulta en la Ecuación \ref{eq_ycus_sinA}.
+\begin{align}
+	\Aboxed{
+	\left( \widehat{  \ln\frac{y_c}{y_U} } \right)_{\text{sin}}
+	=
+	\frac{\gamma}{1-\gamma}
+	\ln\left(
+	\frac{K_c/Y_c}{K_U/Y_U}
+	\right)
+	+
+	\ln\frac{h_c}{h_U}
+	}
+	\label{eq_ycus_sinA}
+\end{align}
+
+El ejercicio consiste en comparar el valor observado en PWT, $\ln(y_c/y_U)$, contra los valores explicados por el modelo con y sin el término de productividad agregada de firmas, dados por las ecuaciones \ref{eq_ycus_conA} y \ref{eq_ycus_sinA} respectivamente.
+
