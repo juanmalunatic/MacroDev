@@ -1,0 +1,15 @@
+Year used: 2010
+PWT countries loaded: 183
+Barro-Lee countries loaded: 146
+Matched countries: 140
+Final countries after missing/non-positive PWT filters: 139
+Output paths created:
+- solved\p6\code\output\p6_p4_item_a_country_level.csv
+- solved\p6\code\output\p6_p4_item_a_with_A.png
+- solved\p6\code\output\p6_p4_item_a_without_A.png
+- solved\p6\code\output\p6_p4_unmatched_barro_lee.csv
+- solved\p6\code\output\p6_p4_unmatched_pwt.csv
+Education-share normalization warnings: none.
+Unresolved issues:
+- 6 Barro-Lee countries remain unmatched by name.
+- Some matched countries were dropped for missing/non-positive PWT variables: Guyana.
