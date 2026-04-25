@@ -1,0 +1,17 @@
+# Keep LaTeX sources and final outputs tracked; ignore common build artifacts.
+*.aux
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.nav
+*.out
+*.snm
+*.synctex.gz
+*.toc
+*.vrb
+
+# Ignore pdf for now
+
+*.pdf

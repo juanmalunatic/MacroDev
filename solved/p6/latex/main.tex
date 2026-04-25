@@ -1,0 +1,83 @@
+\documentclass[10pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage{graphicx}
+
+\usepackage[autostyle=false, style=english]{csquotes} \MakeOuterQuote{"}
+\usepackage{booktabs}
+\usepackage{parskip}
+\usepackage{xcolor}
+\usepackage{titling}
+\usepackage{listings}
+\usepackage{tcolorbox}
+\usepackage[symbol]{footmisc}
+\usepackage{float} 
+\usepackage{caption}
+
+% preamble
+\usepackage{siunitx}
+\sisetup{
+	table-number-alignment = center,
+	table-format = 1.2
+}
+
+\usepackage[left=2.3cm, right=2.3cm, top=2.5cm, bottom=2.5cm]{geometry}
+\let\CheckCommand\providecommand \usepackage{microtype}
+\usepackage{amsfonts, amsmath, amssymb}
+\usepackage{mathtools}  % aboxed
+\renewcommand{\arraystretch}{1.2}
+
+% Header
+\usepackage{fancyhdr}
+% Encabezado
+\fancyhead[L]{Lautaro Blanco, Juan Luna}          % Izquierda
+\fancyhead[C]{Práctica 7}                   % Centro vacío
+\fancyhead[R]{Macro Development}  % Derecha
+
+% Pie de página
+\fancyfoot[L]{}
+\fancyfoot[C]{Página \thepage}
+\fancyfoot[R]{}
+
+% Línea horizontal bajo el encabezado
+\renewcommand{\headrulewidth}{0.4pt}  % grosor de la línea del encabezado
+\renewcommand{\footrulewidth}{0pt}    % sin línea en el pie de página
+
+\newcommand{\gr}[1]{\textcolor{gray}{#1}}
+
+\title{Práctica 7}
+\date{Abril 25, 2026.}
+\author{Lautaro Blanco, Juan Luna}
+
+\renewcommand{\maketitle}{
+	{\centering  
+		{\large \textbf{Macro Development: \thetitle}}
+		\vspace{4pt}
+		
+		\theauthor
+		
+		\vspace{4pt}
+		\thedate
+		
+		\vspace{10pt}}
+}
+
+\newcommand{\te}[1]{\texttt{#1}}
+
+\begin{document}
+	\pagestyle{fancy}
+	\thispagestyle{empty}
+	\maketitle
+	
+	El código y los datos usados para esta práctica se encuentran adjuntos a este documento en la carpeta \texttt{/code}.
+	
+	\tableofcontents
+	\clearpage
+	
+	\input{tp6_punto4}
+	\clearpage
+	\input{tp7_punto1}
+	\clearpage
+	\input{tp7_punto2}
+	
+\end{document}
