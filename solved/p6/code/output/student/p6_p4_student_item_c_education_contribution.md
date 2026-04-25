@@ -1,0 +1,8 @@
+| concepto | valor |
+|---|---:|
+| Canal productividad de firmas | 0.107048619307 |
+| Canal capital humano trabajadores | 0.191191084723 |
+| Contribución total de educación | 0.298239704030 |
+| Capital humano solamente | 0.191191084723 |
+| Contribución adicional del canal firmas | 0.107048619307 |
+| Ratio total / capital humano | 1.559903823247 |

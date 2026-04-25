@@ -1,0 +1,14 @@
+Unified base data input: solved/p6/code/output/unified/p6_p4_unified_base_data.csv
+Student country-level output: solved/p6/code/output/student/p6_p4_student_country_level.csv
+Student item (a) with A PDF: solved/p6/code/output/student/p6_p4_student_item_a_with_A_relative.pdf
+Student item (a) without A PDF: solved/p6/code/output/student/p6_p4_student_item_a_without_A_relative.pdf
+Student item (b) CSV: solved/p6/code/output/student/p6_p4_student_item_b_variance_decomposition.csv
+Student item (b) MD: solved/p6/code/output/student/p6_p4_student_item_b_variance_decomposition.md
+Student item (c) CSV: solved/p6/code/output/student/p6_p4_student_item_c_education_contribution.csv
+Student item (c) MD: solved/p6/code/output/student/p6_p4_student_item_c_education_contribution.md
+Student benchmark CSV: solved/p6/code/output/student/p6_p4_student_benchmark_check.csv
+Student benchmark MD: solved/p6/code/output/student/p6_p4_student_benchmark_check.md
+Sample size: 139
+Item (b) share sum: 1.000000000000
+Benchmark checks passed: True
+Maximum benchmark difference: 2.910e-11
