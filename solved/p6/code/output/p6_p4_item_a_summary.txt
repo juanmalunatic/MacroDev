@@ -10,6 +10,14 @@ Output paths created:
 - solved\p6\code\output\p6_p4_unmatched_barro_lee.csv
 - solved\p6\code\output\p6_p4_unmatched_pwt.csv
 Education-share normalization warnings: none.
+Item (b) computed: yes.
+Item (b) sample size: 139
+Variance decomposition output paths:
+- solved\p6\code\output\p6_p4_item_b_variance_decomposition.csv
+- solved\p6\code\output\p6_p4_item_b_variance_decomposition.md
+- solved\p6\code\output\p6_p4_item_b_summary.txt
+Variance-decomposition share sum: 1.000000000000
+Max absolute reconstruction error: 8.882e-16
 Unresolved issues:
 - 6 Barro-Lee countries remain unmatched by name.
 - Some matched countries were dropped for missing/non-positive PWT variables: Guyana.

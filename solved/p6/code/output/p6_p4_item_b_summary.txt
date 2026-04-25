@@ -1,0 +1,5 @@
+Item (b) sample size: 139
+Variance-decomposition share sum: 1.000000000000
+Max absolute reconstruction error: 8.882e-16
+CSV table: C:\AcademicRepos\MacroDevBase\solved\p6\code\output\p6_p4_item_b_variance_decomposition.csv
+Markdown table: C:\AcademicRepos\MacroDevBase\solved\p6\code\output\p6_p4_item_b_variance_decomposition.md

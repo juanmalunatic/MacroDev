@@ -386,6 +386,115 @@ def add_model_terms(df: pd.DataFrame) -> pd.DataFrame:
     return result
 
 
+def add_item_b_terms(df: pd.DataFrame) -> tuple[pd.DataFrame, float]:
+    result = df.copy()
+    result["ln_capital_factor_rel_us"] = CAPITAL_EXPONENT * result["ln_K_over_Y_rel_us"]
+
+    if not np.allclose(
+        result["ln_capital_factor_rel_us"].to_numpy(),
+        (CAPITAL_EXPONENT * result["ln_K_over_Y_rel_us"]).to_numpy(),
+        atol=1e-10,
+        rtol=0.0,
+    ):
+        raise AssertionError("ln_capital_factor_rel_us must equal CAPITAL_EXPONENT * ln_K_over_Y_rel_us.")
+
+    result["residual"] = (
+        result["ln_y_rel_us"]
+        - result["ln_tilde_A_rel_us"]
+        - result["ln_capital_factor_rel_us"]
+        - result["ln_h_rel_us"]
+    )
+
+    required_item_b_columns = [
+        "ln_y_rel_us",
+        "ln_tilde_A_rel_us",
+        "ln_capital_factor_rel_us",
+        "ln_h_rel_us",
+        "residual",
+    ]
+    if result[required_item_b_columns].isna().any().any():
+        raise AssertionError("Item (b) sample contains missing values in the variance-decomposition variables.")
+
+    reconstruction = (
+        result["ln_tilde_A_rel_us"]
+        + result["ln_capital_factor_rel_us"]
+        + result["ln_h_rel_us"]
+        + result["residual"]
+    )
+    reconstruction_error = result["ln_y_rel_us"] - reconstruction
+    max_abs_reconstruction_error = float(reconstruction_error.abs().max())
+
+    if not np.allclose(
+        result["ln_y_rel_us"].to_numpy(),
+        reconstruction.to_numpy(),
+        atol=1e-10,
+        rtol=0.0,
+    ):
+        raise AssertionError("Residual definition does not reconstruct ln_y_rel_us up to numerical tolerance.")
+
+    return result, max_abs_reconstruction_error
+
+
+def compute_variance_decomposition(df: pd.DataFrame) -> tuple[pd.DataFrame, float]:
+    variance_ln_y = float(df["ln_y_rel_us"].var())
+    if not np.isfinite(variance_ln_y) or variance_ln_y <= 0:
+        raise AssertionError("The variance of ln_y_rel_us must be strictly positive for item (b).")
+
+    component_map = {
+        "firm_productivity": "ln_tilde_A_rel_us",
+        "capital_factor": "ln_capital_factor_rel_us",
+        "worker_human_capital": "ln_h_rel_us",
+        "residual": "residual",
+    }
+
+    rows = []
+    for component, column in component_map.items():
+        covariance_with_ln_y = float(df[column].cov(df["ln_y_rel_us"]))
+        share = covariance_with_ln_y / variance_ln_y
+        rows.append(
+            {
+                "component": component,
+                "share": share,
+                "covariance_with_ln_y": covariance_with_ln_y,
+                "variance_ln_y": variance_ln_y,
+            }
+        )
+
+    decomposition_df = pd.DataFrame(rows)
+    share_sum = float(decomposition_df["share"].sum())
+
+    if not np.isclose(share_sum, 1.0, atol=1e-10, rtol=0.0):
+        raise AssertionError(
+            f"Variance-decomposition shares must sum to one; found {share_sum:.12f}."
+        )
+
+    total_row = pd.DataFrame(
+        [
+            {
+                "component": "total",
+                "share": share_sum,
+                "covariance_with_ln_y": float(decomposition_df["covariance_with_ln_y"].sum()),
+                "variance_ln_y": variance_ln_y,
+            }
+        ]
+    )
+    decomposition_df = pd.concat([decomposition_df, total_row], ignore_index=True)
+
+    return decomposition_df, share_sum
+
+
+def write_markdown_table(df: pd.DataFrame, output_path: Path) -> None:
+    lines = [
+        "| component | share | covariance_with_ln_y | variance_ln_y |",
+        "|---|---:|---:|---:|",
+    ]
+    for row in df.itertuples(index=False):
+        lines.append(
+            f"| {row.component} | {row.share:.12f} | {row.covariance_with_ln_y:.12f} | {row.variance_ln_y:.12f} |"
+        )
+    output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
 def make_scatter_plot(
     df: pd.DataFrame,
     x_col: str,
@@ -434,6 +543,9 @@ def build_run_summary(
     final_df: pd.DataFrame,
     theta_warning_df: pd.DataFrame,
     dropped_due_to_missing: pd.DataFrame,
+    item_b_paths: list[Path],
+    share_sum: float,
+    max_abs_reconstruction_error: float,
 ) -> str:
     output_paths = [
         output_dir / "p6_p4_item_a_country_level.csv",
@@ -461,6 +573,13 @@ def build_run_summary(
             + ", ".join(theta_warning_df["country"].tolist())
             + "."
         )
+
+    lines.append("Item (b) computed: yes.")
+    lines.append(f"Item (b) sample size: {len(final_df)}")
+    lines.append("Variance decomposition output paths:")
+    lines.extend(f"- {path.relative_to(repo_root)}" for path in item_b_paths)
+    lines.append(f"Variance-decomposition share sum: {share_sum:.12f}")
+    lines.append(f"Max absolute reconstruction error: {max_abs_reconstruction_error:.3e}")
 
     unresolved = []
     unmatched_barro_path = output_dir / "p6_p4_unmatched_barro_lee.csv"
@@ -511,6 +630,8 @@ def run() -> None:
     ].drop_duplicates()
 
     final_df = add_model_terms(matched_df)
+    final_df, max_abs_reconstruction_error = add_item_b_terms(final_df)
+    decomposition_df, share_sum = compute_variance_decomposition(final_df)
 
     keep_columns = [
         "countrycode",
@@ -532,12 +653,33 @@ def run() -> None:
         "ln_y_rel_us",
         "ln_tilde_A_rel_us",
         "ln_K_over_Y_rel_us",
+        "ln_capital_factor_rel_us",
         "ln_h_rel_us",
         "ln_yhat_with_A_rel_us",
         "ln_yhat_without_A_rel_us",
+        "residual",
     ]
     country_level_path = output_dir / "p6_p4_item_a_country_level.csv"
     final_df[keep_columns].sort_values(["countrycode"]).to_csv(country_level_path, index=False)
+
+    item_b_csv_path = output_dir / "p6_p4_item_b_variance_decomposition.csv"
+    item_b_md_path = output_dir / "p6_p4_item_b_variance_decomposition.md"
+    item_b_summary_path = output_dir / "p6_p4_item_b_summary.txt"
+    decomposition_df.to_csv(item_b_csv_path, index=False)
+    write_markdown_table(decomposition_df, item_b_md_path)
+    item_b_summary_path.write_text(
+        "\n".join(
+            [
+                f"Item (b) sample size: {len(final_df)}",
+                f"Variance-decomposition share sum: {share_sum:.12f}",
+                f"Max absolute reconstruction error: {max_abs_reconstruction_error:.3e}",
+                f"CSV table: {item_b_csv_path}",
+                f"Markdown table: {item_b_md_path}",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
 
     plotted_values = np.concatenate(
         [
@@ -577,6 +719,8 @@ def run() -> None:
 
     if not with_a_path.exists() or not without_a_path.exists():
         raise FileNotFoundError("Expected figure outputs were not created.")
+    if not item_b_csv_path.exists() or not item_b_md_path.exists():
+        raise FileNotFoundError("Expected item (b) variance-decomposition outputs were not created.")
 
     summary_text = build_run_summary(
         repo_root=repo_root,
@@ -587,6 +731,9 @@ def run() -> None:
         final_df=final_df,
         theta_warning_df=theta_warning_df,
         dropped_due_to_missing=dropped_due_to_missing,
+        item_b_paths=[item_b_csv_path, item_b_md_path, item_b_summary_path],
+        share_sum=share_sum,
+        max_abs_reconstruction_error=max_abs_reconstruction_error,
     )
     summary_path = output_dir / "p6_p4_item_a_summary.txt"
     summary_path.write_text(summary_text, encoding="utf-8")
