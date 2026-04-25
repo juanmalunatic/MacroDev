@@ -331,7 +331,7 @@ def _markdown_table_from_dataframe(df: pd.DataFrame, output_path: Path, float_co
         for header in headers:
             value = row[header]
             if header in float_columns:
-                values.append(f"{float(value):.12f}")
+                values.append(f"{float(value):.3f}")
             else:
                 values.append(str(value))
         lines.append("| " + " | ".join(values) + " |")
@@ -374,7 +374,7 @@ def write_variance_outputs(variance_decomposition: pd.DataFrame, output_dir: Pat
     for row in variance_decomposition.itertuples(index=False):
         label = VARIANCE_COMPONENT_LABELS_ES[row.component]
         latex_lines.append(
-            f"        {label} & {row.share:.12f} & {row.covariance_with_ln_y:.12f} & {row.variance_ln_y:.12f} \\\\"
+            f"        {label} & {row.share:.3f} & {row.covariance_with_ln_y:.3f} & {row.variance_ln_y:.3f} \\\\"
         )
     latex_lines.extend(
         [
@@ -412,7 +412,7 @@ def write_education_outputs(education_contribution: pd.DataFrame, output_dir: Pa
     ]
     for row in education_contribution.itertuples(index=False):
         label = EDUCATION_CONCEPT_LABELS_ES[row.concept]
-        latex_lines.append(f"        {label} & {row.value:.12f} \\\\")
+        latex_lines.append(f"        {label} & {row.value:.3f} \\\\")
     latex_lines.extend(
         [
             r"        \bottomrule",

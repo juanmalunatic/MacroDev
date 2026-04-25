@@ -60,7 +60,7 @@ def save_markdown_table(df: pd.DataFrame, path: Path, float_columns: list[str]) 
         for column in df.columns:
             value = row[column]
             if column in float_columns:
-                values.append(f"{float(value):.12f}")
+                values.append(f"{float(value):.3f}")
             else:
                 values.append(str(value))
         lines.append("| " + " | ".join(values) + " |")
@@ -198,7 +198,7 @@ def main() -> None:
         if not np.isclose(value, 0.0, atol=TOL, rtol=0.0):
             raise AssertionError(f"{column} for the United States must be zero.")
 
-    country_level_path = output_dir / "p6_p4_student_country_level.csv"
+    country_level_path = output_dir / "country_level.csv"
     df.sort_values("countrycode").to_csv(country_level_path, index=False)
 
     variance_rows = []
@@ -243,8 +243,9 @@ def main() -> None:
         ignore_index=True,
     )
 
-    item_b_csv = output_dir / "p6_p4_student_item_b_variance_decomposition.csv"
-    item_b_md = output_dir / "p6_p4_student_item_b_variance_decomposition.md"
+    item_b_csv = output_dir / "var_decomp.csv"
+    item_b_md = output_dir / "var_decomp.md"
+    item_b_tex = output_dir / "var_decomp.tex"
     variance_df.to_csv(item_b_csv, index=False)
     variance_md = variance_df.copy()
     variance_md["componente"] = variance_md["component"].map(VARIANCE_COMPONENT_LABELS_ES)
@@ -260,6 +261,28 @@ def main() -> None:
         item_b_md,
         float_columns=["participacion", "covarianza_con_ln_y", "varianza_ln_y"],
     )
+    latex_lines = [
+        r"\begin{table}[H]",
+        r"    \centering",
+        r"    \begin{tabular}{lrrr}",
+        r"        \toprule",
+        r"        Componente & Participación & Covarianza con $\ell^y_c$ & Varianza de $\ell^y_c$ \\",
+        r"        \midrule",
+    ]
+    for row in variance_df.itertuples(index=False):
+        label = VARIANCE_COMPONENT_LABELS_ES[row.component]
+        latex_lines.append(
+            f"        {label} & {row.share:.3f} & {row.covariance_with_ln_y:.3f} & {row.variance_ln_y:.3f} \\\\"
+        )
+    latex_lines.extend(
+        [
+            r"        \bottomrule",
+            r"    \end{tabular}",
+            r"    \caption{Descomposición de varianza del ingreso relativo.}",
+            r"\end{table}",
+        ]
+    )
+    item_b_tex.write_text("\n".join(latex_lines) + "\n", encoding="utf-8")
 
     firm_productivity_education_channel = float(
         variance_df.loc[variance_df["component"] == "firm_productivity", "share"].iloc[0]
@@ -310,8 +333,8 @@ def main() -> None:
         ]
     )
 
-    item_c_csv = output_dir / "p6_p4_student_item_c_education_contribution.csv"
-    item_c_md = output_dir / "p6_p4_student_item_c_education_contribution.md"
+    item_c_csv = output_dir / "education_contribution.csv"
+    item_c_md = output_dir / "education_contribution.md"
     education_df.to_csv(item_c_csv, index=False)
     education_md = education_df.copy()
     education_md["concepto"] = education_md["concept"].map(EDUCATION_CONCEPT_LABELS_ES)
@@ -330,8 +353,8 @@ def main() -> None:
     margin = max(0.1, 0.05 * (max_value - min_value))
     relative_limits = (min_value - margin, max_value + margin)
 
-    with_a_pdf = output_dir / "p6_p4_student_item_a_with_A_relative.pdf"
-    without_a_pdf = output_dir / "p6_p4_student_item_a_without_A_relative.pdf"
+    with_a_pdf = output_dir / "fig_with_A.pdf"
+    without_a_pdf = output_dir / "fig_without_A.pdf"
     make_scatter(
         df,
         x_col="ln_yhat_with_A_rel_us",
@@ -351,17 +374,18 @@ def main() -> None:
         limits=relative_limits,
     )
 
-    summary_path = output_dir / "p6_p4_student_summary.txt"
+    summary_path = output_dir / "summary.txt"
     summary_lines = [
         "Input CSV: p6_p4_unified_base_data.csv",
         "Output folder: output/",
-        "Country-level CSV: output/p6_p4_student_country_level.csv",
-        "Item (a) with A PDF: output/p6_p4_student_item_a_with_A_relative.pdf",
-        "Item (a) without A PDF: output/p6_p4_student_item_a_without_A_relative.pdf",
-        "Item (b) CSV: output/p6_p4_student_item_b_variance_decomposition.csv",
-        "Item (b) MD: output/p6_p4_student_item_b_variance_decomposition.md",
-        "Item (c) CSV: output/p6_p4_student_item_c_education_contribution.csv",
-        "Item (c) MD: output/p6_p4_student_item_c_education_contribution.md",
+        "Country-level CSV: output/country_level.csv",
+        "Item (a) with A PDF: output/fig_with_A.pdf",
+        "Item (a) without A PDF: output/fig_without_A.pdf",
+        "Item (b) CSV: output/var_decomp.csv",
+        "Item (b) MD: output/var_decomp.md",
+        "Item (b) TEX: output/var_decomp.tex",
+        "Item (c) CSV: output/education_contribution.csv",
+        "Item (c) MD: output/education_contribution.md",
         f"Sample size: {len(df)}",
         f"Item (b) share sum: {share_sum:.12f}",
     ]

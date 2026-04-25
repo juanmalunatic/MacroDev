@@ -18,9 +18,9 @@ def main() -> None:
     student_output_dir = SCRIPT_DIR / "output"
     unified_output_dir = SCRIPT_DIR.parent / "output" / "unified"
 
-    student_country_path = student_output_dir / "p6_p4_student_country_level.csv"
-    student_item_b_path = student_output_dir / "p6_p4_student_item_b_variance_decomposition.csv"
-    student_item_c_path = student_output_dir / "p6_p4_student_item_c_education_contribution.csv"
+    student_country_path = student_output_dir / "country_level.csv"
+    student_item_b_path = student_output_dir / "var_decomp.csv"
+    student_item_c_path = student_output_dir / "education_contribution.csv"
 
     unified_country_path = unified_output_dir / "p6_p4_unified_country_level.csv"
     unified_item_b_path = unified_output_dir / "p6_p4_unified_item_b_variance_decomposition.csv"

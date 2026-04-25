@@ -1,4 +1,4 @@
-| componente | participación | covarianza_con_ln_y | varianza_ln_y |
+| componente | participacion | covarianza_con_ln_y | varianza_ln_y |
 |---|---:|---:|---:|
 | Productividad de firmas | 0.107 | 0.136 | 1.268 |
 | Factor capital | 0.048 | 0.060 | 1.268 |
